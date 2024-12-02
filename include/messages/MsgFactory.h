@@ -3,6 +3,6 @@
 
 #include "messages/MsgHeader.h"
 
-std::shared_ptr<MsgHeader> construct_message(const unsigned int id);
+MsgHeader::pointer construct_message(const unsigned int id);
 
 #endif

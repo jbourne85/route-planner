@@ -13,6 +13,8 @@ struct MsgHeader
     const unsigned int length;    //The length of the message (in bytes)
     const time_t timestamp;       //This is the epoch timestamp of the message     
 
+    typedef std::shared_ptr<MsgHeader> pointer; //typedef for a message header pointer
+
     MsgHeader(const unsigned int id, const unsigned int length) : id(id), length(length), timestamp(std::time(0)) {}
     
     /** 
