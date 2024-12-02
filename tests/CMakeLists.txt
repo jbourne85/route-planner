@@ -1,7 +1,9 @@
 find_package(gtest REQUIRED)
 
 file(GLOB MESSAGE_TESTS "**/test_*.cpp")
-add_executable(runTests ${MESSAGE_TESTS})
+set(MESSAGE_SOURCES "${ROUTE_PLANNER_SRC_ROOT}/messages/MsgFactory.cpp")
+
+add_executable(runTests ${MESSAGE_TESTS} ${MESSAGE_SOURCES})
 target_include_directories(runTests PUBLIC ${PROJECT_SOURCE_DIR}/include)
 include_directories(${GTest_INCLUDE_DIR})
 
