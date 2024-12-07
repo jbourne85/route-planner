@@ -1,6 +1,6 @@
-.vscode
 .cache
-build
 .conan
-.venv
-.gitignore
+.vscode
+build
+venv
+
