@@ -2,7 +2,12 @@
 #define MSGFACTORY_H
 
 #include "messages/MsgHeader.h"
+#include "messages/MsgStatus.h"
 
-MsgHeader::pointer construct_message(const unsigned int id);
+namespace messages {
+
+MsgHeader::MsgPointer construct_message(const unsigned int id);
+
+}
 
 #endif

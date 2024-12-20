@@ -3,6 +3,8 @@
 #include "messages/MsgHeader.h"
 #include "messages/MsgStatus.h"
 
+using namespace messages;
+
 TEST(AddTest, msg_header_create)
 {
     auto header = construct_message(MSG_HEADER_ID);

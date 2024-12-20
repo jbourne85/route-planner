@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include "messages/MsgHeader.h"
 
+using namespace messages;
+
 TEST(AddTest, msg_header_constructor)
 {
     unsigned int id = 100;
