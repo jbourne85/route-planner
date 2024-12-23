@@ -16,6 +16,14 @@ protected:
 
 TEST_F(MsgFactoryTest, MsgHeaderCreate)
 {
+    auto header = msg_factory->header();
+
+    EXPECT_EQ(header->id, MSG_HEADER_ID);
+    EXPECT_EQ(header->length, sizeof(MsgHeader));
+}
+
+TEST_F(MsgFactoryTest, MsgHeaderCreateById)
+{
     auto header = msg_factory->create(MSG_HEADER_ID);
 
     EXPECT_EQ(header->id, MSG_HEADER_ID);
@@ -40,7 +48,7 @@ TEST_F(MsgFactoryTest, MsgStatusResponseCreate)
 
 TEST_F(MsgFactoryTest, MsgNoMatchCreate)
 {
-    auto msg = msg_factory->create(999);
+    auto msg = msg_factory->create(0);
 
     EXPECT_TRUE(msg == nullptr);
 }
