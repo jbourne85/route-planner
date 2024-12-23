@@ -6,7 +6,7 @@
 
 namespace messages {
 
-MsgHeader::MsgPointer construct_message(const unsigned int id) {
+MsgHeader::MsgPointer MsgFactory::create(const unsigned int id) {
     switch(id)
     {
         case MSG_HEADER_ID:

@@ -7,7 +7,8 @@ using namespace messages;
 
 TEST(AddTest, MsgHeaderCreate)
 {
-    auto header = construct_message(MSG_HEADER_ID);
+    MsgFactory factory;
+    auto header = factory.create(MSG_HEADER_ID);
 
     EXPECT_EQ(header->id, MSG_HEADER_ID);
     EXPECT_EQ(header->length, sizeof(MsgHeader));
@@ -15,7 +16,8 @@ TEST(AddTest, MsgHeaderCreate)
 
 TEST(AddTest, MsgStatusRequestCreate)
 {
-    auto status_request = construct_message(MSG_STATUS_REQUEST_ID);
+    MsgFactory factory;
+    auto status_request = factory.create(MSG_STATUS_REQUEST_ID);
 
     EXPECT_EQ(status_request->id, MSG_STATUS_REQUEST_ID);
     EXPECT_EQ(status_request->length, sizeof(MsgStatusRequest));
@@ -23,7 +25,8 @@ TEST(AddTest, MsgStatusRequestCreate)
 
 TEST(AddTest, MsgStatusResponseCreate)
 {
-    auto status_response = construct_message(MSG_STATUS_RESPONSE_ID);
+    MsgFactory factory;
+    auto status_response = factory.create(MSG_STATUS_RESPONSE_ID);
 
     EXPECT_EQ(status_response->id, MSG_STATUS_RESPONSE_ID);
     EXPECT_EQ(status_response->length, sizeof(MsgStatusResponse));
@@ -31,7 +34,8 @@ TEST(AddTest, MsgStatusResponseCreate)
 
 TEST(AddTest, MsgNoMatchCreate)
 {
-    auto msg = construct_message(999);
+    MsgFactory factory;
+    auto msg = factory.create(999);
 
     EXPECT_TRUE(msg == nullptr);
 }
