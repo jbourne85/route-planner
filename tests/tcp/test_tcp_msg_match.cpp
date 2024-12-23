@@ -2,7 +2,6 @@
 #include <gmock/gmock.h>
 #include "comms/TcpMsgMatch.h"
 #include "messages/MsgFactory.h"
-#include "messages/MockMsgHeader.h"
 
 using namespace comms;
 using namespace messages;
