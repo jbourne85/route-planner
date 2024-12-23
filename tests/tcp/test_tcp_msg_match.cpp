@@ -60,7 +60,13 @@ TEST_F(TcpMsgMatchTest, MatchFoundWhenBufferContainsCompleteMessage) {
 
     // Expect a message to be found
     EXPECT_TRUE(result.second);
-    EXPECT_TRUE(nullptr != tcp_msg_match->get_match());
+
+    // Expect the found message to match the sent one
+    auto match = tcp_msg_match->get_match();
+    EXPECT_TRUE(nullptr != match);
+    EXPECT_TRUE(header->id == match->id);
+    EXPECT_TRUE(header->length == match->length);
+    EXPECT_TRUE(header->timestamp == match->timestamp);
 }
 
 
@@ -79,4 +85,40 @@ TEST_F(TcpMsgMatchTest, HandleIncorrectMessageFound) {
     //Expect the message not to be found
     EXPECT_FALSE(result.second);
     EXPECT_TRUE(nullptr == tcp_msg_match->get_match());
+}
+
+TEST_F(TcpMsgMatchTest, MatchFoundOverMultipleChunks) {
+
+    boost::asio::streambuf buffer;
+    auto header = msg_factory->header();
+
+    populate_buffer(buffer, header, header->length); //write the whole header (16 bytes)
+
+    auto begin = TcpMsgMatch::MsgBufferIterator(boost::asio::buffers_begin(buffer.data()));
+  
+    //Expect the message not to be found
+    auto result = tcp_msg_match->match_found(begin, begin + 4);  //chunk 1/4 (bytes 1 - 4)    
+    EXPECT_FALSE(result.second);
+    EXPECT_TRUE(nullptr == tcp_msg_match->get_match());
+
+    //Expect the message not to be found
+    result = tcp_msg_match->match_found(result.first, result.first + 4); //chunk 2/4 (bytes 5 - 8)
+    EXPECT_FALSE(result.second);
+    EXPECT_TRUE(nullptr == tcp_msg_match->get_match());
+
+    //Expect the message not to be found
+    result = tcp_msg_match->match_found(result.first, result.first + 4); //chunk 3/4 (bytes 9 - 12)
+    EXPECT_FALSE(result.second);
+    EXPECT_TRUE(nullptr == tcp_msg_match->get_match());
+
+    // Expect a message to be found
+    result = tcp_msg_match->match_found(result.first, result.first + 4); //chunk 4/4 (bytes 13 - 16)
+    EXPECT_TRUE(result.second);
+    
+    // Expect the found message to match the sent one
+    auto match = tcp_msg_match->get_match();
+    EXPECT_TRUE(nullptr != match);
+    EXPECT_TRUE(header->id == match->id);
+    EXPECT_TRUE(header->length == match->length);
+    EXPECT_TRUE(header->timestamp == match->timestamp);
 }
