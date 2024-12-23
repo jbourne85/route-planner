@@ -5,7 +5,7 @@
 
 using namespace messages;
 
-TEST(AddTest, msg_header_create)
+TEST(AddTest, MsgHeaderCreate)
 {
     auto header = construct_message(MSG_HEADER_ID);
 
@@ -13,7 +13,7 @@ TEST(AddTest, msg_header_create)
     EXPECT_EQ(header->length, sizeof(MsgHeader));
 }
 
-TEST(AddTest, msg_status_request_create)
+TEST(AddTest, MsgStatusRequestCreate)
 {
     auto status_request = construct_message(MSG_STATUS_REQUEST_ID);
 
@@ -21,7 +21,7 @@ TEST(AddTest, msg_status_request_create)
     EXPECT_EQ(status_request->length, sizeof(MsgStatusRequest));
 }
 
-TEST(AddTest, msg_status_response_create)
+TEST(AddTest, MsgStatusResponseCreate)
 {
     auto status_response = construct_message(MSG_STATUS_RESPONSE_ID);
 
@@ -29,7 +29,7 @@ TEST(AddTest, msg_status_response_create)
     EXPECT_EQ(status_response->length, sizeof(MsgStatusResponse));
 }
 
-TEST(AddTest, Test_msg_no_match_create)
+TEST(AddTest, MsgNoMatchCreate)
 {
     auto msg = construct_message(999);
 

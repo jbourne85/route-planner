@@ -3,7 +3,7 @@
 
 using namespace messages;
 
-TEST(AddTest, msg_header_constructor)
+TEST(AddTest, MsgHeaderConstructor)
 {
     unsigned int id = 100;
     unsigned int length = sizeof(MsgHeader);
@@ -14,7 +14,7 @@ TEST(AddTest, msg_header_constructor)
     EXPECT_EQ(header.length, length);
 }
 
-TEST(AddTest, msg_header_serialise_deserialise_test)
+TEST(AddTest, MsgHeaderSerialiseDeserialise)
 {
     unsigned int id = 100;
     unsigned int length = sizeof(MsgHeader);
