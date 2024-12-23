@@ -62,3 +62,21 @@ TEST_F(TcpMsgMatchTest, MatchFoundWhenBufferContainsCompleteMessage) {
     EXPECT_TRUE(result.second);
     EXPECT_TRUE(nullptr != tcp_msg_match->get_match());
 }
+
+
+TEST_F(TcpMsgMatchTest, HandleIncorrectMessageFound) {
+    boost::asio::streambuf buffer;
+    
+    auto header = MsgHeader::MsgPointer(new MsgHeader(0, sizeof(MsgHeader))); //create a message with an invalid id
+
+    populate_buffer(buffer, header, header->length); //write the whole header
+
+    auto begin = TcpMsgMatch::MsgBufferIterator(boost::asio::buffers_begin(buffer.data()));
+    auto end = TcpMsgMatch::MsgBufferIterator(boost::asio::buffers_end(buffer.data()));
+
+    auto result = tcp_msg_match->match_found(begin, end);
+
+    //Expect the message not to be found
+    EXPECT_FALSE(result.second);
+    EXPECT_TRUE(nullptr == tcp_msg_match->get_match());
+}
