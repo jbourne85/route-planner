@@ -13,6 +13,10 @@ public:
     /// @param id This is the id of the message to create
     /// @return The created message on success, or a nullptr on failure
     MsgHeader::MsgPointer create(const unsigned int id);
+    
+    /// @brief This method can create the message header
+    /// @return A message header
+    MsgHeader::MsgPointer header();
 };
 }
 

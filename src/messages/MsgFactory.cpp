@@ -19,4 +19,8 @@ MsgHeader::MsgPointer MsgFactory::create(const unsigned int id) {
     return MsgHeader::MsgPointer(nullptr);
 }
 
+MsgHeader::MsgPointer MsgFactory::header() {
+    return create(MSG_HEADER_ID);
+}
+
 }
