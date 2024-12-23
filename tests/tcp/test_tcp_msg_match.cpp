@@ -20,7 +20,7 @@ protected:
         std::vector<char> msg_buffer;
         std::ostream os(&buffer);
         
-        msg->serialize(msg_buffer);
+        msg->Serialize(msg_buffer);
 
         std::copy(msg_buffer.begin(), msg_buffer.begin() + length, std::ostream_iterator<char>(os));
     }
@@ -32,36 +32,36 @@ protected:
 TEST_F(TcpMsgMatchTest, MatchNotFoundWhenBufferIsIncomplete) {
     
     boost::asio::streambuf buffer;
-    auto header = msg_factory->header();
+    auto header = msg_factory->Header();
 
     populate_buffer(buffer, header, 3); //write a portion of the message to the buffer
 
     auto begin = TcpMsgMatch::MsgBufferIterator(boost::asio::buffers_begin(buffer.data()));
     auto end = TcpMsgMatch::MsgBufferIterator(boost::asio::buffers_end(buffer.data()));
 
-    auto result = tcp_msg_match->match_found(begin, end);
+    auto result = tcp_msg_match->ProcessBuffer(begin, end);
 
     //Expect the message not to be found
     EXPECT_FALSE(result.second);
-    EXPECT_TRUE(nullptr == tcp_msg_match->get_match());
+    EXPECT_TRUE(nullptr == tcp_msg_match->GetMsg());
 }
 
 TEST_F(TcpMsgMatchTest, MatchFoundWhenBufferContainsCompleteMessage) {
     boost::asio::streambuf buffer;
-    auto header = msg_factory->header();
+    auto header = msg_factory->Header();
 
     populate_buffer(buffer, header, header->length); //write the whole header
 
     auto begin = TcpMsgMatch::MsgBufferIterator(boost::asio::buffers_begin(buffer.data()));
     auto end = TcpMsgMatch::MsgBufferIterator(boost::asio::buffers_end(buffer.data()));
 
-    auto result = tcp_msg_match->match_found(begin, end);
+    auto result = tcp_msg_match->ProcessBuffer(begin, end);
 
     // Expect a message to be found
     EXPECT_TRUE(result.second);
 
     // Expect the found message to match the sent one
-    auto match = tcp_msg_match->get_match();
+    auto match = tcp_msg_match->GetMsg();
     EXPECT_TRUE(nullptr != match);
     EXPECT_TRUE(header->id == match->id);
     EXPECT_TRUE(header->length == match->length);
@@ -79,44 +79,44 @@ TEST_F(TcpMsgMatchTest, HandleIncorrectMessageFound) {
     auto begin = TcpMsgMatch::MsgBufferIterator(boost::asio::buffers_begin(buffer.data()));
     auto end = TcpMsgMatch::MsgBufferIterator(boost::asio::buffers_end(buffer.data()));
 
-    auto result = tcp_msg_match->match_found(begin, end);
+    auto result = tcp_msg_match->ProcessBuffer(begin, end);
 
     //Expect the message not to be found
     EXPECT_FALSE(result.second);
-    EXPECT_TRUE(nullptr == tcp_msg_match->get_match());
+    EXPECT_TRUE(nullptr == tcp_msg_match->GetMsg());
 }
 
 TEST_F(TcpMsgMatchTest, MatchFoundOverMultipleChunks) {
 
     boost::asio::streambuf buffer;
-    auto header = msg_factory->header();
+    auto header = msg_factory->Header();
 
     populate_buffer(buffer, header, header->length); //write the whole header (16 bytes)
 
     auto begin = TcpMsgMatch::MsgBufferIterator(boost::asio::buffers_begin(buffer.data()));
   
     //Expect the message not to be found
-    auto result = tcp_msg_match->match_found(begin, begin + 4);  //chunk 1/4 (bytes 1 - 4)    
+    auto result = tcp_msg_match->ProcessBuffer(begin, begin + 4);  //chunk 1/4 (bytes 1 - 4)    
     EXPECT_FALSE(result.second);
-    EXPECT_TRUE(nullptr == tcp_msg_match->get_match());
+    EXPECT_TRUE(nullptr == tcp_msg_match->GetMsg());
 
     //Expect the message not to be found
-    result = tcp_msg_match->match_found(result.first, result.first + 4); //chunk 2/4 (bytes 5 - 8)
+    result = tcp_msg_match->ProcessBuffer(result.first, result.first + 4); //chunk 2/4 (bytes 5 - 8)
     EXPECT_FALSE(result.second);
-    EXPECT_TRUE(nullptr == tcp_msg_match->get_match());
+    EXPECT_TRUE(nullptr == tcp_msg_match->GetMsg());
 
     //Expect the message not to be found
-    result = tcp_msg_match->match_found(result.first, result.first + 4); //chunk 3/4 (bytes 9 - 12)
+    result = tcp_msg_match->ProcessBuffer(result.first, result.first + 4); //chunk 3/4 (bytes 9 - 12)
     EXPECT_FALSE(result.second);
-    EXPECT_TRUE(nullptr == tcp_msg_match->get_match());
+    EXPECT_TRUE(nullptr == tcp_msg_match->GetMsg());
 
     // Expect a message to be found
-    result = tcp_msg_match->match_found(result.first, result.first + 4); //chunk 4/4 (bytes 13 - 16)
+    result = tcp_msg_match->ProcessBuffer(result.first, result.first + 4); //chunk 4/4 (bytes 13 - 16)
     EXPECT_TRUE(result.second);
     
     // Expect the found message to match the sent one
-    auto match = tcp_msg_match->get_match();
-    EXPECT_TRUE(nullptr != match);
+    auto match = tcp_msg_match->GetMsg();
+    ASSERT_NE(nullptr,  match);
     EXPECT_TRUE(header->id == match->id);
     EXPECT_TRUE(header->length == match->length);
     EXPECT_TRUE(header->timestamp == match->timestamp);

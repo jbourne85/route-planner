@@ -24,7 +24,7 @@ struct MsgHeader {
     * object into a char buffer
     * @param buffer the char buffer to serialize into
     */
-    void serialize(std::vector<char>& buffer) const 
+    void Serialize(std::vector<char>& buffer) const 
     {
         buffer.clear();        
         buffer.resize(length);
@@ -36,7 +36,7 @@ struct MsgHeader {
     * object from a char buffer
     * @param buffer the char buffer to serialize from
     */
-    void deserialize(std::vector<char>& buffer)
+    void Deserialize(std::vector<char>& buffer)
     {
         std::memcpy(this, buffer.data(), length);
     }

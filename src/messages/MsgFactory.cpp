@@ -6,7 +6,7 @@
 
 namespace messages {
 
-MsgHeader::MsgPointer MsgFactory::create(const unsigned int id) const {
+MsgHeader::MsgPointer MsgFactory::Create(const unsigned int id) const {
     switch(id)
     {
         case MSG_HEADER_ID:
@@ -19,8 +19,8 @@ MsgHeader::MsgPointer MsgFactory::create(const unsigned int id) const {
     return MsgHeader::MsgPointer(nullptr);
 }
 
-MsgHeader::MsgPointer MsgFactory::header() const {
-    return create(MSG_HEADER_ID);
+MsgHeader::MsgPointer MsgFactory::Header() const {
+    return Create(MSG_HEADER_ID);
 }
 
 }

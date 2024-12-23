@@ -16,7 +16,7 @@ protected:
 
 TEST_F(MsgFactoryTest, MsgHeaderCreate)
 {
-    auto header = msg_factory->header();
+    auto header = msg_factory->Header();
 
     EXPECT_EQ(header->id, MSG_HEADER_ID);
     EXPECT_EQ(header->length, sizeof(MsgHeader));
@@ -24,7 +24,7 @@ TEST_F(MsgFactoryTest, MsgHeaderCreate)
 
 TEST_F(MsgFactoryTest, MsgHeaderCreateById)
 {
-    auto header = msg_factory->create(MSG_HEADER_ID);
+    auto header = msg_factory->Create(MSG_HEADER_ID);
 
     EXPECT_EQ(header->id, MSG_HEADER_ID);
     EXPECT_EQ(header->length, sizeof(MsgHeader));
@@ -32,7 +32,7 @@ TEST_F(MsgFactoryTest, MsgHeaderCreateById)
 
 TEST_F(MsgFactoryTest, MsgStatusRequestCreate)
 {
-    auto status_request = msg_factory->create(MSG_STATUS_REQUEST_ID);
+    auto status_request = msg_factory->Create(MSG_STATUS_REQUEST_ID);
 
     EXPECT_EQ(status_request->id, MSG_STATUS_REQUEST_ID);
     EXPECT_EQ(status_request->length, sizeof(MsgStatusRequest));
@@ -40,7 +40,7 @@ TEST_F(MsgFactoryTest, MsgStatusRequestCreate)
 
 TEST_F(MsgFactoryTest, MsgStatusResponseCreate)
 {
-    auto status_response = msg_factory->create(MSG_STATUS_RESPONSE_ID);
+    auto status_response = msg_factory->Create(MSG_STATUS_RESPONSE_ID);
 
     EXPECT_EQ(status_response->id, MSG_STATUS_RESPONSE_ID);
     EXPECT_EQ(status_response->length, sizeof(MsgStatusResponse));
@@ -48,7 +48,7 @@ TEST_F(MsgFactoryTest, MsgStatusResponseCreate)
 
 TEST_F(MsgFactoryTest, MsgNoMatchCreate)
 {
-    auto msg = msg_factory->create(0);
+    auto msg = msg_factory->Create(0);
 
     EXPECT_TRUE(msg == nullptr);
 }

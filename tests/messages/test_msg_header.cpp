@@ -22,13 +22,13 @@ TEST(AddTest, MsgHeaderSerialiseDeserialise)
     MsgHeader header(id, length);
 
     std::vector<char> buffer;
-    header.serialize(buffer);
+    header.Serialize(buffer);
     
     EXPECT_EQ(buffer.size(), length);
 
     MsgHeader empty_header(0, length);
 
-    empty_header.deserialize(buffer);
+    empty_header.Deserialize(buffer);
 
     EXPECT_EQ(empty_header.id, id);
     EXPECT_EQ(empty_header.length, length);    

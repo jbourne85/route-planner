@@ -28,12 +28,12 @@ public:
     /// @param begin This is the current start of the incoming data to check
     /// @param end This is the current end of the incoming data to check
     /// @return returns a std::pair of iterator and bool (as defined by the boost::asio::async_read_until method)
-    std::pair<TcpMsgMatch::MsgBufferIterator, bool> match_found(TcpMsgMatch::MsgBufferIterator begin, TcpMsgMatch::MsgBufferIterator end);
+    std::pair<TcpMsgMatch::MsgBufferIterator, bool> ProcessBuffer(TcpMsgMatch::MsgBufferIterator begin, TcpMsgMatch::MsgBufferIterator end);
 
 
     /// @brief Get's the current found message.
     /// @return The found message on success, or a nullptr on failure
-    messages::MsgHeader::MsgPointer get_match();
+    messages::MsgHeader::MsgPointer GetMsg();
 };
 
 }
