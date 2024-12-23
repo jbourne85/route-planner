@@ -42,7 +42,7 @@ struct MsgHeader {
     }
 };
 
-const unsigned int MSG_HEADER_ID = 0; 
+const unsigned int MSG_HEADER_ID = 100; 
 const size_t MSG_HEADER_SIZE = sizeof(MsgHeader);
 
 }

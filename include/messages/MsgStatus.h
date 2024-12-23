@@ -5,8 +5,8 @@
 
 namespace messages {
 
-const unsigned int MSG_STATUS_REQUEST_ID = 100;
-const unsigned int MSG_STATUS_RESPONSE_ID = 101;
+const unsigned int MSG_STATUS_REQUEST_ID = 101;
+const unsigned int MSG_STATUS_RESPONSE_ID = 102;
 
 /**
  * This is the low level Status Request Message, 
