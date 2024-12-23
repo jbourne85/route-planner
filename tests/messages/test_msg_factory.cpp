@@ -5,37 +5,42 @@
 
 using namespace messages;
 
-TEST(AddTest, MsgHeaderCreate)
+class MsgFactoryTest : public ::testing::Test {
+protected:
+    void SetUp() override {
+        msg_factory = std::make_unique<MsgFactory>();
+    }
+
+    std::unique_ptr<MsgFactory> msg_factory;
+};
+
+TEST_F(MsgFactoryTest, MsgHeaderCreate)
 {
-    MsgFactory factory;
-    auto header = factory.create(MSG_HEADER_ID);
+    auto header = msg_factory->create(MSG_HEADER_ID);
 
     EXPECT_EQ(header->id, MSG_HEADER_ID);
     EXPECT_EQ(header->length, sizeof(MsgHeader));
 }
 
-TEST(AddTest, MsgStatusRequestCreate)
+TEST_F(MsgFactoryTest, MsgStatusRequestCreate)
 {
-    MsgFactory factory;
-    auto status_request = factory.create(MSG_STATUS_REQUEST_ID);
+    auto status_request = msg_factory->create(MSG_STATUS_REQUEST_ID);
 
     EXPECT_EQ(status_request->id, MSG_STATUS_REQUEST_ID);
     EXPECT_EQ(status_request->length, sizeof(MsgStatusRequest));
 }
 
-TEST(AddTest, MsgStatusResponseCreate)
+TEST_F(MsgFactoryTest, MsgStatusResponseCreate)
 {
-    MsgFactory factory;
-    auto status_response = factory.create(MSG_STATUS_RESPONSE_ID);
+    auto status_response = msg_factory->create(MSG_STATUS_RESPONSE_ID);
 
     EXPECT_EQ(status_response->id, MSG_STATUS_RESPONSE_ID);
     EXPECT_EQ(status_response->length, sizeof(MsgStatusResponse));
 }
 
-TEST(AddTest, MsgNoMatchCreate)
+TEST_F(MsgFactoryTest, MsgNoMatchCreate)
 {
-    MsgFactory factory;
-    auto msg = factory.create(999);
+    auto msg = msg_factory->create(999);
 
     EXPECT_TRUE(msg == nullptr);
 }
