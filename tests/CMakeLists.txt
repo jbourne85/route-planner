@@ -8,6 +8,6 @@ add_executable(runTests ${MESSAGE_TESTS} ${MESSAGE_SOURCES} ${TCP_SOURCES})
 target_include_directories(runTests PUBLIC ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/tests)
 include_directories(${GTest_INCLUDE_DIR})
 
-target_link_libraries(runTests GTest::gtest GTest::gtest_main pthread)
+target_link_libraries(runTests GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main pthread)
 
 add_test(NAME runTests COMMAND runTests)
