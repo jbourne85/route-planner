@@ -1,4 +1,5 @@
 #include <boost/asio.hpp>
+#include <boost/bind/bind.hpp>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include "comms/TcpSession.h"
@@ -6,13 +7,24 @@
 
 using namespace comms;
 using namespace messages;
+using namespace std::placeholders;
+
+class MockTcpSocketExecutor {
+public:
+};
 
 class MockTcpSocket {
 public:
-    MockTcpSocket() {}
+    typedef MockTcpSocketExecutor executor_type;
+    TcpMsgMatch::MsgMatchPointer msg_matcher;
+
+    MockTcpSocket() : msg_matcher(new TcpMsgMatch) {
+
+    }
     MockTcpSocket(const MockTcpSocket& other) {}
 
     MOCK_METHOD(std::size_t, read_some, (const boost::asio::mutable_buffers_1 &buffers, boost::system::error_code &ec));
+    MOCK_METHOD(void, async_read_some, (const boost::asio::mutable_buffers_1& buffers, std::function<void(const boost::system::error_code&, std::size_t)> handler));
     MOCK_METHOD(std::size_t, write_some, (const boost::asio::const_buffers_1 &buffers, boost::system::error_code &ec));
 };
 
@@ -147,4 +159,32 @@ TEST_F(TcpSessionTest, TestErrorWhileWriteMessage) {
     auto bytes_sent = tcp_session->SendMsg(test_msg);
 
     EXPECT_EQ(bytes_sent, 0);
+}
+
+TEST_F(TcpSessionTest, TestAsyncWaitForMessage) {  
+    auto test_msg = msg_factory->Header();
+
+    EXPECT_CALL(*(tcp_session->Socket()), async_read_some).WillOnce([this, test_msg](const boost::asio::mutable_buffers_1& buffers, std::function<void(const boost::system::error_code&, std::size_t)> handler) {
+        boost::system::error_code err;
+        std::vector<char> test_data;    
+        test_msg->Serialize(test_data);
+
+        char* dest = static_cast<char*>(buffers.data());
+        std::memcpy(dest, test_data.data(), test_data.size());
+
+        handler(err, test_msg->length);
+    });
+
+    testing::MockFunction<MsgHeader::MsgPointer(const MsgHeader::MsgPointer)> MockMsgHandler;
+
+    EXPECT_CALL(MockMsgHandler, Call(testing::_))
+    .WillOnce(::testing::Invoke([this, test_msg](MsgHeader::MsgPointer received_msg) {
+        EXPECT_NE(nullptr, received_msg);
+        EXPECT_EQ(test_msg->id, received_msg->id);
+        EXPECT_EQ(test_msg->length, received_msg->length);
+        EXPECT_EQ(test_msg->timestamp, received_msg->timestamp);
+        return nullptr; 
+    }));
+
+    tcp_session->AsyncWaitForMsg(MockMsgHandler.AsStdFunction());
 }

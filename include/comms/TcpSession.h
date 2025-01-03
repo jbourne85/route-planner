@@ -2,6 +2,7 @@
 #define TCPSESSION_H
 
 #include <boost/asio.hpp>
+#include <functional>
 #include "messages/MsgFactory.h"
 #include "messages/MsgHeader.h"
 #include "comms/TcpMsgMatch.h"
@@ -15,6 +16,7 @@ class TcpSession : public std::enable_shared_from_this<TcpSession<SocketType> > 
 protected:
     SocketType m_socket;
     messages::MsgFactory m_msg_factory;
+    boost::asio::streambuf m_buffer;
 
 public:
 
@@ -25,7 +27,20 @@ public:
     {}
 
     void AsyncWaitForMsg(messages::MsgHeader::MsgHandler msg_response_handler) {
+        using namespace std::placeholders;
 
+        TcpMsgMatch::MsgMatchPointer msg_matcher(new TcpMsgMatch);
+
+        boost::asio::async_read_until(m_socket, m_buffer, std::bind(&comms::TcpMsgMatch::ProcessBuffer, msg_matcher, _1, _2), 
+        [this, msg_response_handler, msg_matcher](boost::system::error_code ec, std::size_t) {
+            messages::MsgHeader::MsgPointer msg = msg_matcher->GetMsg();
+
+            auto response_msg = msg_response_handler(msg);
+            
+            if (response_msg) {
+                AsyncSendMsg(response_msg);
+            }
+        });
     }
 
     /// @brief This waits for a valid message to be received on a socket
