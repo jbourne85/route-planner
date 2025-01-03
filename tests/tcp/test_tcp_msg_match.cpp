@@ -91,27 +91,31 @@ TEST_F(TcpMsgMatchTest, MatchFoundOverMultipleChunks) {
     boost::asio::streambuf buffer;
     auto header = msg_factory->Header();
 
-    populate_buffer(buffer, header, header->length); //write the whole header (16 bytes)
+    populate_buffer(buffer, header, header->length); //write the whole header
 
     auto begin = TcpMsgMatch::MsgBufferIterator(boost::asio::buffers_begin(buffer.data()));
+
+    EXPECT_FALSE(header->length % 4);   //check the header can be split into 4 chunks for the test
+
+    size_t chunk_size = header->length / 4;
   
     //Expect the message not to be found
-    auto result = tcp_msg_match->ProcessBuffer(begin, begin + 4);  //chunk 1/4 (bytes 1 - 4)    
+    auto result = tcp_msg_match->ProcessBuffer(begin, begin + chunk_size);  //chunk 1/4
     EXPECT_FALSE(result.second);
     EXPECT_TRUE(nullptr == tcp_msg_match->GetMsg());
 
     //Expect the message not to be found
-    result = tcp_msg_match->ProcessBuffer(result.first, result.first + 4); //chunk 2/4 (bytes 5 - 8)
+    result = tcp_msg_match->ProcessBuffer(result.first, result.first + chunk_size); //chunk 2/4
     EXPECT_FALSE(result.second);
     EXPECT_TRUE(nullptr == tcp_msg_match->GetMsg());
 
     //Expect the message not to be found
-    result = tcp_msg_match->ProcessBuffer(result.first, result.first + 4); //chunk 3/4 (bytes 9 - 12)
+    result = tcp_msg_match->ProcessBuffer(result.first, result.first + chunk_size); //chunk 3/4
     EXPECT_FALSE(result.second);
     EXPECT_TRUE(nullptr == tcp_msg_match->GetMsg());
 
     // Expect a message to be found
-    result = tcp_msg_match->ProcessBuffer(result.first, result.first + 4); //chunk 4/4 (bytes 13 - 16)
+    result = tcp_msg_match->ProcessBuffer(result.first, result.first + chunk_size); //chunk 4/4
     EXPECT_TRUE(result.second);
     
     // Expect the found message to match the sent one
