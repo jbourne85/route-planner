@@ -26,6 +26,7 @@ public:
     MOCK_METHOD(std::size_t, read_some, (const boost::asio::mutable_buffers_1 &buffers, boost::system::error_code &ec));
     MOCK_METHOD(void, async_read_some, (const boost::asio::mutable_buffers_1& buffers, std::function<void(const boost::system::error_code&, std::size_t)> handler));
     MOCK_METHOD(std::size_t, write_some, (const boost::asio::const_buffers_1 &buffers, boost::system::error_code &ec));
+    MOCK_METHOD(void, async_write_some, (const boost::asio::const_buffers_1& buffers, std::function<void(const boost::system::error_code&, std::size_t)> handler));
 };
 
 class TcpSessionTest : public ::testing::Test {
@@ -208,4 +209,22 @@ TEST_F(TcpSessionTest, TestErrorWhileAsyncWaitForMessage) {
     }));
 
     tcp_session->AsyncWaitForMsg(MockMsgHandler.AsStdFunction());
+}
+
+TEST_F(TcpSessionTest, TestAsyncSendMessage) {  
+
+    auto test_msg = msg_factory->Header();
+    auto sent_msg = msg_factory->Header();
+
+    EXPECT_CALL(*(tcp_session->Socket()), async_write_some)
+    .WillOnce([this, test_msg](const boost::asio::const_buffers_1& buffers, std::function<void(const boost::system::error_code&, std::size_t)> handler) {
+        boost::system::error_code err;
+        handler(err, DeserializeMsg(test_msg, buffers));
+    });
+
+    EXPECT_CALL(*(tcp_session->Socket()), async_read_some).Times(1);
+
+    testing::MockFunction<MsgHeader::MsgPointer(const MsgHeader::MsgPointer)> MockMsgHandler;
+
+    tcp_session->AsyncSendMsg(test_msg, MockMsgHandler.AsStdFunction());
 }

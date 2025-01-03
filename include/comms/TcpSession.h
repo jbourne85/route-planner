@@ -45,7 +45,7 @@ public:
 
             auto response_msg = msg_response_handler(received_msg);            
             if (response_msg) {
-                AsyncSendMsg(response_msg);
+                AsyncSendMsg(response_msg, msg_response_handler);
             }
         });
     }
@@ -91,11 +91,26 @@ public:
         return msg;
     }
 
-    void AsyncSendMsg(messages::MsgHeader::MsgPointer msg) {
 
+    /// @brief This sends a message over a socket using boost::asio::async_write
+    /// @param msg This is the message to send
+    /// @return the number of bytes sent
+    void AsyncSendMsg(messages::MsgHeader::MsgPointer msg, messages::MsgHeader::MsgHandler msg_response_handler) {
+        std::vector<char> buffer;
+        msg->Serialize(buffer);
+
+        boost::asio::async_write(m_socket, boost::asio::buffer(buffer), 
+        [this, msg_response_handler](boost::system::error_code err, std::size_t bytes_sent) {
+            if (!err) {
+                AsyncWaitForMsg(msg_response_handler);
+            }
+            else {
+                std::cout << "Error Sending Msg: " << err.message() << std::endl; 
+            }
+        });
     }
 
-    /// @brief This sends a message to be over a socket using boost::asio::write
+    /// @brief This sends a message over a socket using boost::asio::write
     /// @param msg This is the message to send
     /// @return the number of bytes sent
     size_t SendMsg(messages::MsgHeader::MsgPointer msg) {
