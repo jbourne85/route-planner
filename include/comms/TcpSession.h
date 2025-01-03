@@ -41,7 +41,7 @@ public:
 
         messages::MsgHeader::MsgPointer msg_header = m_msg_factory.Create(messages::MSG_HEADER_ID);
 
-        while (true) {
+        while (total_bytes_read < msg_header->length) {
             boost::system::error_code ec;
             bytes_received = m_socket.read_some(boost::asio::buffer(temp_buffer, max_buffer_size), ec);
             total_bytes_read += bytes_received;
@@ -49,10 +49,6 @@ public:
             buffer.insert(buffer.end(), temp_buffer, temp_buffer + bytes_received);
 
             msg_header->Deserialize(buffer);
-
-            if (total_bytes_read >= msg_header->length) {
-                break;
-            }
         } 
 
         messages::MsgHeader::MsgPointer msg = m_msg_factory.Create(msg_header->id);

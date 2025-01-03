@@ -53,3 +53,44 @@ TEST_F(TcpSessionTest, TestWaitForMessage) {
     EXPECT_TRUE(test_msg->length == received_msg->length);
     EXPECT_TRUE(test_msg->timestamp == received_msg->timestamp);
 }
+
+TEST_F(TcpSessionTest, TestWaitForMessageInChunks) {  
+
+    auto test_msg = msg_factory->Header();
+    std::vector<char> test_data;    
+    test_msg->Serialize(test_data);
+
+    //test the header being read in chunks of 4 
+    EXPECT_FALSE(test_msg->length % 4);         //check the header can be split into 4 chunks for the test
+    size_t chunk_size = test_msg->length / 4;
+
+    EXPECT_CALL(*(tcp_session->Socket()), read_some)
+    .Times(4)  
+    .WillOnce([this, test_data, chunk_size](const boost::asio::mutable_buffers_1 &buffers, boost::system::error_code &ec) {
+        char* dest = static_cast<char*>(buffers.data());
+        std::memcpy(dest, test_data.data(), chunk_size);
+        return chunk_size;
+    })
+    .WillOnce([this, test_data, chunk_size](const boost::asio::mutable_buffers_1 &buffers, boost::system::error_code &ec) {
+        char* dest = static_cast<char*>(buffers.data());
+        std::memcpy(dest, test_data.data() + chunk_size * 1, chunk_size);
+        return chunk_size;
+    })
+    .WillOnce([this, test_data, chunk_size](const boost::asio::mutable_buffers_1 &buffers, boost::system::error_code &ec) {
+        char* dest = static_cast<char*>(buffers.data());
+        std::memcpy(dest, test_data.data() + chunk_size * 2, chunk_size);
+        return chunk_size;
+    })
+    .WillOnce([this, test_data, chunk_size](const boost::asio::mutable_buffers_1 &buffers, boost::system::error_code &ec) {
+        char* dest = static_cast<char*>(buffers.data());
+        std::memcpy(dest, test_data.data() + chunk_size * 3, chunk_size);
+        return chunk_size;
+    });
+
+    auto received_msg = tcp_session->WaitForMsg();
+
+    EXPECT_TRUE(nullptr != received_msg);
+    EXPECT_TRUE(test_msg->id == received_msg->id);
+    EXPECT_TRUE(test_msg->length == received_msg->length);
+    EXPECT_TRUE(test_msg->timestamp == received_msg->timestamp);
+}
