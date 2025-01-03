@@ -48,10 +48,10 @@ TEST_F(TcpSessionTest, TestWaitForMessage) {
 
     auto received_msg = tcp_session->WaitForMsg();
 
-    EXPECT_TRUE(nullptr != received_msg);
-    EXPECT_TRUE(test_msg->id == received_msg->id);
-    EXPECT_TRUE(test_msg->length == received_msg->length);
-    EXPECT_TRUE(test_msg->timestamp == received_msg->timestamp);
+    EXPECT_NE(nullptr, received_msg);
+    EXPECT_EQ(test_msg->id, received_msg->id);
+    EXPECT_EQ(test_msg->length, received_msg->length);
+    EXPECT_EQ(test_msg->timestamp, received_msg->timestamp);
 }
 
 TEST_F(TcpSessionTest, TestErrorWhileWaitForMessage) {  
@@ -103,10 +103,10 @@ TEST_F(TcpSessionTest, TestWaitForMessageInChunks) {
 
     auto received_msg = tcp_session->WaitForMsg();
 
-    EXPECT_TRUE(nullptr != received_msg);
-    EXPECT_TRUE(test_msg->id == received_msg->id);
-    EXPECT_TRUE(test_msg->length == received_msg->length);
-    EXPECT_TRUE(test_msg->timestamp == received_msg->timestamp);
+    EXPECT_NE(nullptr, received_msg);
+    EXPECT_EQ(test_msg->id, received_msg->id);
+    EXPECT_EQ(test_msg->length, received_msg->length);
+    EXPECT_EQ(test_msg->timestamp, received_msg->timestamp);
 }
 
 TEST_F(TcpSessionTest, TestWriteMessage) {  
