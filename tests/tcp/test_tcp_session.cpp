@@ -54,6 +54,20 @@ TEST_F(TcpSessionTest, TestWaitForMessage) {
     EXPECT_TRUE(test_msg->timestamp == received_msg->timestamp);
 }
 
+TEST_F(TcpSessionTest, TestErrorWhileWaitForMessage) {  
+
+    auto test_msg = msg_factory->Header();
+
+    EXPECT_CALL(*(tcp_session->Socket()), read_some).WillOnce([this, test_msg](const boost::asio::mutable_buffers_1 &buffers, boost::system::error_code &ec) {
+        ec = boost::asio::error::timed_out;        
+        return 0;
+    });
+
+    auto received_msg = tcp_session->WaitForMsg();
+
+    EXPECT_EQ(nullptr, received_msg);
+}
+
 TEST_F(TcpSessionTest, TestWaitForMessageInChunks) {  
 
     auto test_msg = msg_factory->Header();

@@ -39,22 +39,33 @@ public:
         size_t total_bytes_read = 0;
         size_t bytes_received;
 
+        boost::system::error_code err;
+
         messages::MsgHeader::MsgPointer msg_header = m_msg_factory.Create(messages::MSG_HEADER_ID);
 
         while (total_bytes_read < msg_header->length) {
-            boost::system::error_code ec;
-            bytes_received = m_socket.read_some(boost::asio::buffer(temp_buffer, max_buffer_size), ec);
-            total_bytes_read += bytes_received;
+            bytes_received = m_socket.read_some(boost::asio::buffer(temp_buffer, max_buffer_size), err);           
+            total_bytes_read += bytes_received;        
+
+            if (err) {
+                break;
+            }
 
             buffer.insert(buffer.end(), temp_buffer, temp_buffer + bytes_received);
-
             msg_header->Deserialize(buffer);
         } 
 
-        messages::MsgHeader::MsgPointer msg = m_msg_factory.Create(msg_header->id);
-        if(msg) {
-            msg->Deserialize(buffer);
+        messages::MsgHeader::MsgPointer msg = messages::MsgHeader::MsgPointer(nullptr);
+
+        if (!err) {
+            msg = m_msg_factory.Create(msg_header->id);
+            if(msg) {
+                msg->Deserialize(buffer);
+            }
         }
+        else {
+            std::cout << "Error Receiving data" << std::endl; 
+        }   
         return msg;
     }
 
