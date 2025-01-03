@@ -39,6 +39,23 @@ protected:
     void TearDown() override {
     }
 
+    size_t SerializeMsg(MsgHeader::MsgPointer test_msg, const boost::asio::mutable_buffers_1& buffers) {
+        std::vector<char> test_data;    
+        test_msg->Serialize(test_data);
+
+        char* dest = static_cast<char*>(buffers.data());
+        std::memcpy(dest, test_data.data(), test_data.size());
+
+        return test_msg->length;
+    }
+
+    size_t DeserializeMsg(MsgHeader::MsgPointer test_msg, const boost::asio::const_buffers_1 &buffers) {
+        const char* src = static_cast<const char*>(buffers.data());
+        std::vector<char> buffer(src, src + buffers.size());
+        
+        return test_msg->Deserialize(buffer);
+    }
+
     std::shared_ptr<MockTcpSocket> mock_socket;
     std::unique_ptr<TcpSession<MockTcpSocket> > tcp_session;
     std::unique_ptr<MsgFactory> msg_factory;
@@ -49,13 +66,7 @@ TEST_F(TcpSessionTest, TestWaitForMessage) {
     auto test_msg = msg_factory->Header();
 
     EXPECT_CALL(*(tcp_session->Socket()), read_some).WillOnce([this, test_msg](const boost::asio::mutable_buffers_1 &buffers, boost::system::error_code &ec) {
-        std::vector<char> test_data;    
-        test_msg->Serialize(test_data);
-
-        char* dest = static_cast<char*>(buffers.data());
-        std::memcpy(dest, test_data.data(), test_data.size());
-
-        return test_data.size();
+        return SerializeMsg(test_msg, buffers);
     });
 
     auto received_msg = tcp_session->WaitForMsg();
@@ -128,10 +139,7 @@ TEST_F(TcpSessionTest, TestWriteMessage) {
 
     EXPECT_CALL(*(tcp_session->Socket()), write_some)
     .WillOnce([this, test_msg, sent_msg](const boost::asio::const_buffers_1 &buffers, boost::system::error_code &ec) {
-        const char* src = static_cast<const char*>(buffers.data());
-        std::vector<char> buffer(src, src + buffers.size());
-
-        size_t deserilized_bytes = sent_msg->Deserialize(buffer);
+        size_t deserilized_bytes = DeserializeMsg(sent_msg, buffers);
         EXPECT_EQ(deserilized_bytes, test_msg->length);
 
         return sent_msg->length;
@@ -166,13 +174,7 @@ TEST_F(TcpSessionTest, TestAsyncWaitForMessage) {
 
     EXPECT_CALL(*(tcp_session->Socket()), async_read_some).WillOnce([this, test_msg](const boost::asio::mutable_buffers_1& buffers, std::function<void(const boost::system::error_code&, std::size_t)> handler) {
         boost::system::error_code err;
-        std::vector<char> test_data;    
-        test_msg->Serialize(test_data);
-
-        char* dest = static_cast<char*>(buffers.data());
-        std::memcpy(dest, test_data.data(), test_data.size());
-
-        handler(err, test_msg->length);
+        handler(err, SerializeMsg(test_msg, buffers));
     });
 
     testing::MockFunction<MsgHeader::MsgPointer(const MsgHeader::MsgPointer)> MockMsgHandler;
