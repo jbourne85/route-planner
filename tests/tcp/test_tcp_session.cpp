@@ -228,3 +228,21 @@ TEST_F(TcpSessionTest, TestAsyncSendMessage) {
 
     tcp_session->AsyncSendMsg(test_msg, MockMsgHandler.AsStdFunction());
 }
+
+TEST_F(TcpSessionTest, TestErrorWhileAsyncSendMessage) {  
+
+    auto test_msg = msg_factory->Header();
+    auto sent_msg = msg_factory->Header();
+
+    EXPECT_CALL(*(tcp_session->Socket()), async_write_some)
+    .WillOnce([this, test_msg](const boost::asio::const_buffers_1& buffers, std::function<void(const boost::system::error_code&, std::size_t)> handler) {
+        boost::system::error_code err = boost::asio::error::timed_out; 
+        handler(err, 0);
+    });
+
+    EXPECT_CALL(*(tcp_session->Socket()), async_read_some).Times(0);
+
+    testing::MockFunction<MsgHeader::MsgPointer(const MsgHeader::MsgPointer)> MockMsgHandler;
+
+    tcp_session->AsyncSendMsg(test_msg, MockMsgHandler.AsStdFunction());
+}
