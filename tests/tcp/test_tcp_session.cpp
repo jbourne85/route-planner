@@ -81,8 +81,8 @@ TEST_F(TcpSessionTest, TestErrorWhileWaitForMessage) {
 
     auto test_msg = msg_factory->Header();
 
-    EXPECT_CALL(*(tcp_session->Socket()), read_some).WillOnce([this, test_msg](const boost::asio::mutable_buffers_1 &buffers, boost::system::error_code &ec) {
-        ec = boost::asio::error::timed_out;        
+    EXPECT_CALL(*(tcp_session->Socket()), read_some).WillOnce([this, test_msg](const boost::asio::mutable_buffers_1 &buffers, boost::system::error_code &err) {
+        err = boost::asio::error::timed_out;        
         return 0;
     });
 
@@ -159,8 +159,8 @@ TEST_F(TcpSessionTest, TestErrorWhileWriteMessage) {
     auto sent_msg = msg_factory->Header();
 
     EXPECT_CALL(*(tcp_session->Socket()), write_some)
-    .WillOnce([this, test_msg, sent_msg](const boost::asio::const_buffers_1 &buffers, boost::system::error_code &ec) {
-        ec = boost::asio::error::timed_out;        
+    .WillOnce([this, test_msg, sent_msg](const boost::asio::const_buffers_1 &buffers, boost::system::error_code &err) {
+        err = boost::asio::error::timed_out;        
         return 0;
     });
 
@@ -185,6 +185,25 @@ TEST_F(TcpSessionTest, TestAsyncWaitForMessage) {
         EXPECT_EQ(test_msg->id, received_msg->id);
         EXPECT_EQ(test_msg->length, received_msg->length);
         EXPECT_EQ(test_msg->timestamp, received_msg->timestamp);
+        return nullptr; 
+    }));
+
+    tcp_session->AsyncWaitForMsg(MockMsgHandler.AsStdFunction());
+}
+
+TEST_F(TcpSessionTest, TestErrorWhileAsyncWaitForMessage) {  
+    auto test_msg = msg_factory->Header();
+
+    EXPECT_CALL(*(tcp_session->Socket()), async_read_some).WillOnce([this, test_msg](const boost::asio::mutable_buffers_1& buffers, std::function<void(const boost::system::error_code&, std::size_t)> handler) {
+        boost::system::error_code err = boost::asio::error::timed_out; 
+        handler(err, 0);
+    });
+
+    testing::MockFunction<MsgHeader::MsgPointer(const MsgHeader::MsgPointer)> MockMsgHandler;
+
+    EXPECT_CALL(MockMsgHandler, Call(testing::_))
+    .WillOnce(::testing::Invoke([this, test_msg](MsgHeader::MsgPointer received_msg) {
+        EXPECT_EQ(nullptr, received_msg);
         return nullptr; 
     }));
 

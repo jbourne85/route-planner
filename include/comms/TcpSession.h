@@ -26,17 +26,24 @@ public:
     ~TcpSession()
     {}
 
+    /// @brief This waits for a valid message to be received on a socket using the boost::asio::async_read_until
+    /// @param msg_response_handler This is the message response handler which will be called on reception of a message
     void AsyncWaitForMsg(messages::MsgHeader::MsgHandler msg_response_handler) {
         using namespace std::placeholders;
 
         TcpMsgMatch::MsgMatchPointer msg_matcher(new TcpMsgMatch);
 
         boost::asio::async_read_until(m_socket, m_buffer, std::bind(&comms::TcpMsgMatch::ProcessBuffer, msg_matcher, _1, _2), 
-        [this, msg_response_handler, msg_matcher](boost::system::error_code ec, std::size_t) {
-            messages::MsgHeader::MsgPointer msg = msg_matcher->GetMsg();
+        [this, msg_response_handler, msg_matcher](boost::system::error_code err, std::size_t) {
+            messages::MsgHeader::MsgPointer received_msg(nullptr);
+            if (!err) {
+                received_msg = msg_matcher->GetMsg();
+            }
+            else {
+                std::cout << "Error Receiving Msg: " << err.message() << std::endl; 
+            }
 
-            auto response_msg = msg_response_handler(msg);
-            
+            auto response_msg = msg_response_handler(received_msg);            
             if (response_msg) {
                 AsyncSendMsg(response_msg);
             }
