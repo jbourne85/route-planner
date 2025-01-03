@@ -62,6 +62,7 @@ protected:
     std::unique_ptr<MsgFactory> msg_factory;
 };
 
+/// @brief This tests the TcpSession::WaitForMsg where the message is received over a socket in one go
 TEST_F(TcpSessionTest, TestWaitForMessage) {  
 
     auto test_msg = msg_factory->Header();
@@ -78,6 +79,7 @@ TEST_F(TcpSessionTest, TestWaitForMessage) {
     EXPECT_EQ(test_msg->timestamp, received_msg->timestamp);
 }
 
+/// @brief This tests the TcpSession::WaitForMsg where an error occurs (a timed_out error) during the wait
 TEST_F(TcpSessionTest, TestErrorWhileWaitForMessage) {  
 
     auto test_msg = msg_factory->Header();
@@ -92,6 +94,7 @@ TEST_F(TcpSessionTest, TestErrorWhileWaitForMessage) {
     EXPECT_EQ(nullptr, received_msg);
 }
 
+/// @brief This tests the TcpSession::WaitForMsg where a message is received over a socket in 4 chunks
 TEST_F(TcpSessionTest, TestWaitForMessageInChunks) {  
 
     auto test_msg = msg_factory->Header();
@@ -133,6 +136,7 @@ TEST_F(TcpSessionTest, TestWaitForMessageInChunks) {
     EXPECT_EQ(test_msg->timestamp, received_msg->timestamp);
 }
 
+/// @brief This tests the TcpSession::SendMsg where a message is sent over a socket
 TEST_F(TcpSessionTest, TestSendMessage) {  
 
     auto test_msg = msg_factory->Header();
@@ -154,6 +158,7 @@ TEST_F(TcpSessionTest, TestSendMessage) {
     EXPECT_EQ(sent_msg->timestamp, test_msg->timestamp);
 }
 
+/// @brief This tests the TcpSession::SendMsg where an error occurs when a message is sent
 TEST_F(TcpSessionTest, TestErrorWhileSendMessage) {  
 
     auto test_msg = msg_factory->Header();
@@ -170,6 +175,7 @@ TEST_F(TcpSessionTest, TestErrorWhileSendMessage) {
     EXPECT_EQ(bytes_sent, 0);
 }
 
+/// @brief This tests the TcpSession::AsyncWaitForMsg where a message is received in an async manner over a socket
 TEST_F(TcpSessionTest, TestAsyncWaitForMessage) {  
     auto test_msg = msg_factory->Header();
 
@@ -192,6 +198,8 @@ TEST_F(TcpSessionTest, TestAsyncWaitForMessage) {
     tcp_session->AsyncWaitForMsg(MockMsgHandler.AsStdFunction());
 }
 
+
+/// @brief This tests the TcpSession::AsyncWaitForMsg where an error occurs when a message is received
 TEST_F(TcpSessionTest, TestErrorWhileAsyncWaitForMessage) {  
     auto test_msg = msg_factory->Header();
 
@@ -211,6 +219,7 @@ TEST_F(TcpSessionTest, TestErrorWhileAsyncWaitForMessage) {
     tcp_session->AsyncWaitForMsg(MockMsgHandler.AsStdFunction());
 }
 
+/// @brief This tests the TcpSession::AsyncSendMsg where a message is sent in an async manner over a socket
 TEST_F(TcpSessionTest, TestAsyncSendMessage) {  
 
     auto test_msg = msg_factory->Header();
@@ -229,6 +238,8 @@ TEST_F(TcpSessionTest, TestAsyncSendMessage) {
     tcp_session->AsyncSendMsg(test_msg, MockMsgHandler.AsStdFunction());
 }
 
+
+/// @brief This tests the TcpSession::AsyncSendMsg where an error occurs when a message is sent
 TEST_F(TcpSessionTest, TestErrorWhileAsyncSendMessage) {  
 
     auto test_msg = msg_factory->Header();
