@@ -13,7 +13,7 @@ public:
     MockTcpSocket(const MockTcpSocket& other) {}
 
     MOCK_METHOD(std::size_t, read_some, (const boost::asio::mutable_buffers_1 &buffers, boost::system::error_code &ec));
-
+    MOCK_METHOD(std::size_t, write_some, (const boost::asio::const_buffers_1 &buffers, boost::system::error_code &ec));
 };
 
 class TcpSessionTest : public ::testing::Test {
@@ -93,4 +93,28 @@ TEST_F(TcpSessionTest, TestWaitForMessageInChunks) {
     EXPECT_TRUE(test_msg->id == received_msg->id);
     EXPECT_TRUE(test_msg->length == received_msg->length);
     EXPECT_TRUE(test_msg->timestamp == received_msg->timestamp);
+}
+
+TEST_F(TcpSessionTest, TestWriteMessage) {  
+
+    auto test_msg = msg_factory->Header();
+    auto sent_msg = msg_factory->Header();
+
+    EXPECT_CALL(*(tcp_session->Socket()), write_some)
+    .WillOnce([this, test_msg, sent_msg](const boost::asio::const_buffers_1 &buffers, boost::system::error_code &ec) {
+        const char* src = static_cast<const char*>(buffers.data());
+        std::vector<char> buffer(src, src + buffers.size());
+
+        size_t deserilized_bytes = sent_msg->Deserialize(buffer);
+        EXPECT_EQ(deserilized_bytes, test_msg->length);
+
+        return sent_msg->length;
+    });
+
+    auto bytes_sent = tcp_session->SendMsg(test_msg);
+
+    EXPECT_EQ(bytes_sent, test_msg->length);
+    EXPECT_EQ(sent_msg->id, test_msg->id);
+    EXPECT_EQ(sent_msg->length, test_msg->length);
+    EXPECT_EQ(sent_msg->timestamp, test_msg->timestamp);
 }
