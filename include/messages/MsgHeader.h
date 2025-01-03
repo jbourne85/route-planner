@@ -1,8 +1,9 @@
 #ifndef MSGHEADER_H_
 #define MSGHEADER_H_
 
-#include <boost/asio.hpp>
+#include <algorithm> 
 #include <cstdlib>
+#include <boost/asio.hpp>
 #include <vector>
 
 namespace messages {
@@ -35,10 +36,12 @@ struct MsgHeader {
     * This method can be used to deserialize a Msg
     * object from a char buffer
     * @param buffer the char buffer to serialize from
+    * @return The number of bytes that have be successfully deserialised
     */
-    void Deserialize(std::vector<char>& buffer)
+    unsigned int Deserialize(std::vector<char>& buffer)
     {
-        std::memcpy(this, buffer.data(), length);
+        std::memcpy(this, buffer.data(), std::min((size_t)length, buffer.size()));
+        return buffer.size();
     }
 };
 
