@@ -132,3 +132,19 @@ TEST_F(TcpSessionTest, TestWriteMessage) {
     EXPECT_EQ(sent_msg->length, test_msg->length);
     EXPECT_EQ(sent_msg->timestamp, test_msg->timestamp);
 }
+
+TEST_F(TcpSessionTest, TestErrorWhileWriteMessage) {  
+
+    auto test_msg = msg_factory->Header();
+    auto sent_msg = msg_factory->Header();
+
+    EXPECT_CALL(*(tcp_session->Socket()), write_some)
+    .WillOnce([this, test_msg, sent_msg](const boost::asio::const_buffers_1 &buffers, boost::system::error_code &ec) {
+        ec = boost::asio::error::timed_out;        
+        return 0;
+    });
+
+    auto bytes_sent = tcp_session->SendMsg(test_msg);
+
+    EXPECT_EQ(bytes_sent, 0);
+}
