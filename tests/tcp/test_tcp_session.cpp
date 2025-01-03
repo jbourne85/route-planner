@@ -132,7 +132,7 @@ TEST_F(TcpSessionTest, TestWaitForMessageInChunks) {
     EXPECT_EQ(test_msg->timestamp, received_msg->timestamp);
 }
 
-TEST_F(TcpSessionTest, TestWriteMessage) {  
+TEST_F(TcpSessionTest, TestSendMessage) {  
 
     auto test_msg = msg_factory->Header();
     auto sent_msg = msg_factory->Header();
@@ -153,7 +153,7 @@ TEST_F(TcpSessionTest, TestWriteMessage) {
     EXPECT_EQ(sent_msg->timestamp, test_msg->timestamp);
 }
 
-TEST_F(TcpSessionTest, TestErrorWhileWriteMessage) {  
+TEST_F(TcpSessionTest, TestErrorWhileSendMessage) {  
 
     auto test_msg = msg_factory->Header();
     auto sent_msg = msg_factory->Header();
