@@ -23,4 +23,8 @@ MsgHeader::MsgPointer MsgFactory::Header() const {
     return Create(MSG_HEADER_ID);
 }
 
+size_t MsgFactory::MaxLength() const {
+    return sizeof(MsgStatusResponse);
+}
+
 }
