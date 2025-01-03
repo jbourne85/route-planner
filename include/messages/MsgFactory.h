@@ -17,6 +17,10 @@ public:
     /// @brief This method can create the message header
     /// @return A message header
     MsgHeader::MsgPointer Header() const;
+
+    /// @brief This method will return the lngth of the largest message
+    /// @return The largets message size in bytes
+    size_t MaxLength() const;
 };
 }
 

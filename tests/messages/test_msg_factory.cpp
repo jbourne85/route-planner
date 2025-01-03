@@ -52,3 +52,20 @@ TEST_F(MsgFactoryTest, MsgNoMatchCreate)
 
     EXPECT_TRUE(msg == nullptr);
 }
+
+TEST_F(MsgFactoryTest, MaxMsgLength)
+{
+    std::vector msg_ids = {MSG_HEADER_ID, MSG_STATUS_REQUEST_ID, MSG_STATUS_RESPONSE_ID};
+
+    size_t max_message_size = 0;
+
+    //Get the largest current message
+    for (auto it = msg_ids.begin(); it != msg_ids.end(); ++it) {
+        if (msg_factory->Create(*it)->length > max_message_size) {
+            max_message_size = msg_factory->Create(*it)->length;
+        }
+    }
+
+    EXPECT_NE(max_message_size, 0);
+    EXPECT_EQ(msg_factory->MaxLength(), max_message_size);
+}
