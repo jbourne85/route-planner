@@ -86,7 +86,7 @@ public:
             }
         }
         else {
-            std::cout << "Error Receiving data" << std::endl; 
+            std::cout << "Error Receiving Msg: " << err.message() << std::endl; 
         }   
         return msg;
     }
@@ -110,7 +110,7 @@ public:
             bytes_sent = msg->length;
         }
         else {
-            std::cout << "Error Sending data" << std::endl; 
+            std::cout << "Error Sending Msg: " << err.message() << std::endl; 
         }
         return bytes_sent;
     }
