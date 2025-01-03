@@ -11,7 +11,7 @@ TEST(AddTest, MsgHeaderConstructor)
     MsgHeader header(id, length);
 
     EXPECT_EQ(header.id, id);
-    EXPECT_EQ(header.length, length);
+    EXPECT_EQ(header.length, 24);
 }
 
 TEST(AddTest, MsgHeaderSerialiseDeserialise)

@@ -12,13 +12,13 @@ namespace messages {
  */
 struct MsgHeader {
     const unsigned int id;        //The ID of the message
-    const unsigned int length;    //The length of the message (in bytes)
+    const size_t length;          //The length of the message (in bytes)
     const time_t timestamp;       //This is the epoch timestamp of the message     
 
     typedef std::shared_ptr<MsgHeader> MsgPointer; //typedef for a message header pointer
     typedef std::function<MsgHeader::MsgPointer(MsgHeader::MsgPointer)> MsgHandler; //typedef for a mesage handler function
 
-    MsgHeader(const unsigned int id, const unsigned int length) : id(id), length(length), timestamp(std::time(0)) {}
+    MsgHeader(const unsigned int id, const size_t length) : id(id), length(length), timestamp(std::time(0)) {}
     
     /** 
     * This method can be used to serialize a Msg
@@ -38,9 +38,9 @@ struct MsgHeader {
     * @param buffer the char buffer to serialize from
     * @return The number of bytes that have be successfully deserialised
     */
-    unsigned int Deserialize(std::vector<char>& buffer)
+    size_t Deserialize(std::vector<char>& buffer)
     {
-        std::memcpy(this, buffer.data(), std::min((size_t)length, buffer.size()));
+        std::memcpy(this, buffer.data(), std::min(length, buffer.size()));
         return buffer.size();
     }
 };
