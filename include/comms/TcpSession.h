@@ -96,6 +96,7 @@ public:
     }
 
     /// @brief This sends a message to be over a socket using boost::asio::write
+    /// @param msg This is the message to send
     /// @return the number of bytes sent
     size_t SendMsg(messages::MsgHeader::MsgPointer msg) {
         std::vector<char> buffer;
