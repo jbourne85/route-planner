@@ -33,7 +33,7 @@ public:
     messages::MsgHeader::MsgPointer WaitForMsg() {
         
         std::vector<char> buffer;
-        const size_t max_buffer_size = 1024; 
+        const size_t max_buffer_size = m_msg_factory.MaxLength(); 
         char temp_buffer[max_buffer_size];
 
         size_t total_bytes_read = 0;
@@ -62,8 +62,21 @@ public:
 
     }
 
+    /// @brief This sends a message to be over a socket using boost::asio::write
+    /// @return the number of bytes sent
     size_t SendMsg(messages::MsgHeader::MsgPointer msg) {
+        std::vector<char> buffer;
+        msg->Serialize(buffer);
+        boost::system::error_code err;
+        boost::asio::write(m_socket, boost::asio::buffer(buffer), err);
 
+        if (err)
+        {
+            std::cout << "Error Sending data" << std::endl; 
+            return 0;
+        }
+        
+        return msg->length;
     }
 
     SocketType* Socket() {
