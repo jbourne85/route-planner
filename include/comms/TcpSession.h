@@ -81,12 +81,15 @@ public:
         boost::system::error_code err;
         boost::asio::write(m_socket, boost::asio::buffer(buffer), err);
 
-        if (err) {
-            std::cout << "Error Sending data" << std::endl; 
-            return 0;
+        size_t bytes_sent = 0;
+
+        if (!err) {
+            bytes_sent = msg->length;
         }
-        
-        return msg->length;
+        else {
+            std::cout << "Error Sending data" << std::endl; 
+        }
+        return bytes_sent;
     }
 
     SocketType* Socket() {
