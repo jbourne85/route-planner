@@ -8,6 +8,8 @@ set(MESSAGE_SOURCES
     "${ROUTE_PLANNER_SRC_ROOT}/messages/MsgFactory.cpp"
 )
 set(TCP_SOURCES 
+    "${ROUTE_PLANNER_SRC_ROOT}/comms/TcpClient.cpp"
+    "${ROUTE_PLANNER_SRC_ROOT}/comms/TcpServer.cpp"
     "${ROUTE_PLANNER_SRC_ROOT}/comms/TcpMsgMatch.cpp"
 )
 enable_testing()
