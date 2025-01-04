@@ -42,7 +42,7 @@ public:
     TcpSession(SocketType& socket) : m_socket(std::move(socket))
     {}
 
-    ~TcpSession()
+    virtual ~TcpSession()
     {}
 
     /// @brief This waits for a valid message to be received on a socket using the boost::asio::async_read_until
