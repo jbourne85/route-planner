@@ -29,11 +29,18 @@ public:
     MOCK_METHOD(void, async_write_some, (const boost::asio::const_buffers_1& buffers, std::function<void(const boost::system::error_code&, std::size_t)> handler));
 };
 
+class MockTcpSession : public TcpSession<MockTcpSocket> {
+public:
+    MockTcpSession(MockTcpSocket& socket) : TcpSession(socket) {}
+    MOCK_METHOD(void, ProcessSession, (messages::MsgHeader::MsgPointer received_msg, messages::MsgHeader::MsgHandler msg_handler), (override));
+    MOCK_METHOD(void, ProcessSession, (messages::MsgHeader::MsgHandler msg_handler), (override));
+};
+
 class TcpSessionTest : public ::testing::Test {
 protected:
     void SetUp() override {
         mock_socket = std::make_shared<MockTcpSocket>();
-        tcp_session = std::make_shared<TcpSession<MockTcpSocket> >(*mock_socket);
+        tcp_session = std::make_shared<MockTcpSession>(*mock_socket);
         msg_factory = std::make_unique<MsgFactory>();
     }
 
@@ -58,7 +65,7 @@ protected:
     }
 
     std::shared_ptr<MockTcpSocket> mock_socket;
-    std::shared_ptr<TcpSession<MockTcpSocket> > tcp_session;
+    std::shared_ptr<MockTcpSession> tcp_session;
     std::unique_ptr<MsgFactory> msg_factory;
 };
 
@@ -89,9 +96,9 @@ TEST_F(TcpSessionTest, TestErrorWhileWaitForMessage) {
         return 0;
     });
 
-    auto received_msg = tcp_session->WaitForMsg();
-
-    EXPECT_EQ(nullptr, received_msg);
+    EXPECT_THROW({
+        auto received_msg = tcp_session->WaitForMsg();
+    }, std::runtime_error);
 }
 
 /// @brief This tests the TcpSession::WaitForMsg where a message is received over a socket in 4 chunks
@@ -170,9 +177,9 @@ TEST_F(TcpSessionTest, TestErrorWhileSendMessage) {
         return 0;
     });
 
-    auto bytes_sent = tcp_session->SendMsg(test_msg);
-
-    EXPECT_EQ(bytes_sent, 0);
+    EXPECT_THROW({
+        tcp_session->SendMsg(test_msg);
+    }, std::runtime_error);
 }
 
 /// @brief This tests the TcpSession::AsyncWaitForMsg where a message is received in an async manner over a socket
@@ -186,20 +193,19 @@ TEST_F(TcpSessionTest, TestAsyncWaitForMessage) {
 
     testing::MockFunction<MsgHeader::MsgPointer(const MsgHeader::MsgPointer)> MockMsgHandler;
 
-    EXPECT_CALL(MockMsgHandler, Call(testing::_))
-    .WillOnce(::testing::Invoke([this, test_msg](MsgHeader::MsgPointer received_msg) {
+    EXPECT_CALL(*tcp_session, ProcessSession(testing::_, testing::_))
+    .WillOnce([this, test_msg](messages::MsgHeader::MsgPointer received_msg, messages::MsgHeader::MsgHandler msg_handler){
         EXPECT_NE(nullptr, received_msg);
         EXPECT_EQ(test_msg->id, received_msg->id);
         EXPECT_EQ(test_msg->length, received_msg->length);
-        EXPECT_EQ(test_msg->timestamp, received_msg->timestamp);
-        return nullptr; 
-    }));
+        EXPECT_EQ(test_msg->timestamp, received_msg->timestamp); 
+    });   
 
     tcp_session->AsyncWaitForMsg(MockMsgHandler.AsStdFunction());
 }
 
 
-/// @brief This tests the TcpSession::AsyncWaitForMsg where an error occurs when a message is received
+/// @brief This tests the TcpSession::AsyncWaitForMsg where an error occurs when a message is received, it is expected that an exception will be thrown
 TEST_F(TcpSessionTest, TestErrorWhileAsyncWaitForMessage) {  
     auto test_msg = msg_factory->Header();
 
@@ -210,13 +216,11 @@ TEST_F(TcpSessionTest, TestErrorWhileAsyncWaitForMessage) {
 
     testing::MockFunction<MsgHeader::MsgPointer(const MsgHeader::MsgPointer)> MockMsgHandler;
 
-    EXPECT_CALL(MockMsgHandler, Call(testing::_))
-    .WillOnce(::testing::Invoke([this, test_msg](MsgHeader::MsgPointer received_msg) {
-        EXPECT_EQ(nullptr, received_msg);
-        return nullptr; 
-    }));
+    EXPECT_CALL(*tcp_session, ProcessSession(testing::_, testing::_)).Times(0);
 
-    tcp_session->AsyncWaitForMsg(MockMsgHandler.AsStdFunction());
+    EXPECT_THROW({
+        tcp_session->AsyncWaitForMsg(MockMsgHandler.AsStdFunction());
+    }, std::runtime_error);
 }
 
 /// @brief This tests the TcpSession::AsyncSendMsg where a message is sent in an async manner over a socket
@@ -226,16 +230,22 @@ TEST_F(TcpSessionTest, TestAsyncSendMessage) {
     auto sent_msg = msg_factory->Header();
 
     EXPECT_CALL(*(tcp_session->Socket()), async_write_some)
-    .WillOnce([this, test_msg](const boost::asio::const_buffers_1& buffers, std::function<void(const boost::system::error_code&, std::size_t)> handler) {
+    .WillOnce([this, sent_msg](const boost::asio::const_buffers_1& buffers, std::function<void(const boost::system::error_code&, std::size_t)> handler) {
         boost::system::error_code err;
-        handler(err, DeserializeMsg(test_msg, buffers));
+        handler(err, DeserializeMsg(sent_msg, buffers));
     });
 
-    EXPECT_CALL(*(tcp_session->Socket()), async_read_some).Times(1);
+    EXPECT_CALL(*tcp_session, ProcessSession(testing::_))
+    .WillOnce([this, test_msg](messages::MsgHeader::MsgHandler msg_handler){
+    });   
 
     testing::MockFunction<MsgHeader::MsgPointer(const MsgHeader::MsgPointer)> MockMsgHandler;
 
     tcp_session->AsyncSendMsg(test_msg, MockMsgHandler.AsStdFunction());
+
+    EXPECT_EQ(sent_msg->id, test_msg->id);
+    EXPECT_EQ(sent_msg->length, test_msg->length);
+    EXPECT_EQ(sent_msg->timestamp, test_msg->timestamp);
 }
 
 
@@ -243,7 +253,6 @@ TEST_F(TcpSessionTest, TestAsyncSendMessage) {
 TEST_F(TcpSessionTest, TestErrorWhileAsyncSendMessage) {  
 
     auto test_msg = msg_factory->Header();
-    auto sent_msg = msg_factory->Header();
 
     EXPECT_CALL(*(tcp_session->Socket()), async_write_some)
     .WillOnce([this, test_msg](const boost::asio::const_buffers_1& buffers, std::function<void(const boost::system::error_code&, std::size_t)> handler) {
@@ -251,9 +260,11 @@ TEST_F(TcpSessionTest, TestErrorWhileAsyncSendMessage) {
         handler(err, 0);
     });
 
-    EXPECT_CALL(*(tcp_session->Socket()), async_read_some).Times(0);
+    EXPECT_CALL(*tcp_session, ProcessSession(testing::_)).Times(0);
 
     testing::MockFunction<MsgHeader::MsgPointer(const MsgHeader::MsgPointer)> MockMsgHandler;
-
-    tcp_session->AsyncSendMsg(test_msg, MockMsgHandler.AsStdFunction());
+    
+    EXPECT_THROW({
+        tcp_session->AsyncSendMsg(test_msg, MockMsgHandler.AsStdFunction());
+    }, std::runtime_error);
 }
