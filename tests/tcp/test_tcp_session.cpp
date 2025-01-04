@@ -33,7 +33,7 @@ class TcpSessionTest : public ::testing::Test {
 protected:
     void SetUp() override {
         mock_socket = std::make_shared<MockTcpSocket>();
-        tcp_session = std::make_unique<TcpSession<MockTcpSocket> >(*mock_socket);
+        tcp_session = std::make_shared<TcpSession<MockTcpSocket> >(*mock_socket);
         msg_factory = std::make_unique<MsgFactory>();
     }
 
@@ -58,7 +58,7 @@ protected:
     }
 
     std::shared_ptr<MockTcpSocket> mock_socket;
-    std::unique_ptr<TcpSession<MockTcpSocket> > tcp_session;
+    std::shared_ptr<TcpSession<MockTcpSocket> > tcp_session;
     std::unique_ptr<MsgFactory> msg_factory;
 };
 

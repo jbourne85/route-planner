@@ -31,10 +31,12 @@ public:
     void AsyncWaitForMsg(messages::MsgHeader::MsgHandler msg_response_handler) {
         using namespace std::placeholders;
 
+        auto self(this->shared_from_this());
+
         TcpMsgMatch::MsgMatchPointer msg_matcher(new TcpMsgMatch);
 
         boost::asio::async_read_until(m_socket, m_buffer, std::bind(&comms::TcpMsgMatch::ProcessBuffer, msg_matcher, _1, _2), 
-        [this, msg_response_handler, msg_matcher](boost::system::error_code err, std::size_t) {
+        [this, self, msg_response_handler, msg_matcher](boost::system::error_code err, std::size_t bytes) {
             messages::MsgHeader::MsgPointer received_msg(nullptr);
             if (!err) {
                 received_msg = msg_matcher->GetMsg();
@@ -53,7 +55,6 @@ public:
     /// @brief This waits for a valid message to be received on a socket
     /// @return A valid MsgHeader::MsgPointer message on success, nullptr on failure
     messages::MsgHeader::MsgPointer WaitForMsg() {
-        
         std::vector<char> buffer;
         const size_t max_buffer_size = m_msg_factory.MaxLength(); 
         char temp_buffer[max_buffer_size];
