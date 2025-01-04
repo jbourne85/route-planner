@@ -1,10 +1,6 @@
 #include <boost/asio.hpp>
 #include <iostream>
 #include "comms/TcpServer.h"
-#include "comms/TcpSession.h"
-#include "messages/MsgFactory.h"
-#include "messages/MsgHeader.h"
-#include "messages/MsgStatus.h"
 
 namespace comms {
 

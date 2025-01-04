@@ -1,6 +1,5 @@
 #include <chrono>
 #include <iostream>
-#include <thread>
 #include "comms/TcpClient.h"
 #include "messages/MsgFactory.h"
 #include "messages/MsgHeader.h"

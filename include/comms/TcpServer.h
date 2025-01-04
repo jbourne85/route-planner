@@ -2,7 +2,6 @@
 #define TCPSERVER_H
 
 #include <boost/asio.hpp>
-#include <functional>
 #include "comms/TcpSession.h"
 #include "messages/MsgHeader.h"
 

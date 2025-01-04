@@ -2,7 +2,6 @@
 #define TCPSESSION_H
 
 #include <boost/asio.hpp>
-#include <functional>
 #include "messages/MsgFactory.h"
 #include "messages/MsgHeader.h"
 #include "comms/TcpMsgMatch.h"

@@ -1,10 +1,5 @@
-#include <functional>
 #include <iostream>
-#include <string>
 #include "comms/TcpClient.h"
-#include "comms/TcpSession.h"
-#include "messages/MsgFactory.h"
-#include "messages/MsgHeader.h"
 
 namespace comms {
 

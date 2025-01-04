@@ -1,5 +1,4 @@
 #include <boost/asio.hpp>
-#include <iostream>
 #include "messages/MsgFactory.h"
 #include "messages/MsgHeader.h"
 #include "messages/MsgStatus.h"
