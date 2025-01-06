@@ -2,16 +2,18 @@
 #define LOCATION_H
 
 #include <string>
-#include <vector>
+#include <unordered_map>
 
 namespace route {
 
-/// @brief This represenst a single location in the graph, and knows valid routes to other locations
+/// @brief This represenst a single location in the graph, and knows valid destinations from this locations
 class Location {
-    const std::string m_name;                       /// This is the string representation of the Location
-    unsigned int m_cost;                            /// This is the point cost assoctaied with this point
-    std::vector<const Location* const> m_routes;    /// This is a list of locations that are reachable from this location
+    const std::string m_name;                                               /// This is the string representation of the Location
+    unsigned int m_cost;                                                    /// This is the point cost assoctaied with this point
+    std::unordered_map<std::string, const Location* const> m_destinations;  /// This is a list of destinations that are reachable from this location
 public:
+    typedef std::unordered_map<std::string, const Location* const> ValidDestinationsType;
+
     Location(const std::string name, unsigned int cost);
 
     /// @brief Getter for the string location name
@@ -22,9 +24,13 @@ public:
     /// @return Int representing the point cost
     const unsigned int Cost() const; 
 
-    /// @brief Getter for the valid routes from this location
-    /// @return List of valid routes
-    std::vector<const Location* const> Routes() const; 
+    /// @brief Getter for the valid destinations from this location
+    /// @return Map of valid destinations
+    ValidDestinationsType Destinations() const; 
+
+    /// @brief Setter for adding a valid destination from this location
+    /// @param location location to add as a valid destination from this
+    void AddDestination(const Location* const location);
 };
 
 }

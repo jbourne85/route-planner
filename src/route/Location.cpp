@@ -1,3 +1,4 @@
+#include <utility>
 #include "route/Location.h"
 
 namespace route {
@@ -16,8 +17,13 @@ const unsigned int Location::Cost() const {
     return m_cost;
 }
 
-std::vector<const Location* const> Location::Routes() const {
-    return m_routes;
+Location::ValidDestinationsType Location::Destinations() const {
+    return m_destinations;
+}
+
+void Location::AddDestination(const Location *const location)
+{
+    m_destinations.insert(std::make_pair(location->Name(), location));
 }
 }
 

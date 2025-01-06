@@ -9,5 +9,5 @@ TEST(AddTest, LocationConstructor)
     
     EXPECT_EQ(location.Name(), "test location");
     EXPECT_EQ(location.Cost(), 10);
-    EXPECT_EQ(location.Routes().size(), 0);
+    EXPECT_EQ(location.Destinations().size(), 0);
 }
