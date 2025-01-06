@@ -43,6 +43,18 @@ TEST(AddTest, TestLoadSuccess)
     EXPECT_NE(locations.end(), find_glasgow);
 
     auto find_brighton = std::find(locations.begin(), locations.end(), brighton);
-    EXPECT_NE(locations.end(), find_brighton);
-    
+    EXPECT_NE(locations.end(), find_brighton);   
+}
+
+TEST(AddTest, TestLoadErrorFileMissing)
+{
+    const std::string test_data_file = "test_data/route/test_non_existant_file.csv";
+    FileLocationDatabase test_db(test_data_file);
+
+    bool loaded = test_db.Load();
+
+    EXPECT_FALSE(loaded);
+
+    auto locations = test_db.GetLocations();
+    EXPECT_EQ(0, locations.size());
 }
