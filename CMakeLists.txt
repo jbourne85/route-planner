@@ -12,6 +12,10 @@ set(TCP_SOURCES
     "${ROUTE_PLANNER_SRC_ROOT}/comms/TcpServer.cpp"
     "${ROUTE_PLANNER_SRC_ROOT}/comms/TcpMsgMatch.cpp"
 )
+set(ROUTE_SOURCES
+    "${ROUTE_PLANNER_SRC_ROOT}/route/Location.cpp"
+)
+
 enable_testing()
 add_subdirectory(src)
 add_subdirectory(tests)
