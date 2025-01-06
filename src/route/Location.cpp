@@ -21,9 +21,13 @@ Location::ValidDestinationsType Location::Destinations() const {
     return m_destinations;
 }
 
-void Location::AddDestination(const Location *const location)
-{
-    m_destinations.insert(std::make_pair(location->Name(), location));
+void Location::AddDestination(const Location *const destination) {
+    m_destinations.insert(std::make_pair(destination->Name(), destination));
+}
+
+bool Location::DestinationIsValid(const Location *const destination) {
+    auto location = m_destinations.find(destination->Name());
+    return location != m_destinations.end();
 }
 }
 
