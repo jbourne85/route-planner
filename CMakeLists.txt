@@ -14,6 +14,7 @@ set(TCP_SOURCES
 )
 set(ROUTE_SOURCES
     "${ROUTE_PLANNER_SRC_ROOT}/route/Location.cpp"
+    "${ROUTE_PLANNER_SRC_ROOT}/route/FileLocationDatabase.cpp"
 )
 
 enable_testing()
