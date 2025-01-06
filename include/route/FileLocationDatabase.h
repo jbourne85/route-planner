@@ -15,6 +15,16 @@ class FileLocationDatabase : public ILocationDatabase {
     std::vector<const Location* const> m_location_list;  
     
     FileLocationDatabase(const FileLocationDatabase& other); //copying of the Location database is dissalowed
+
+protected:
+    /// @brief This will delete all the locations in a given location list 
+    /// @param locations The list to iterate over and free up the memory
+    virtual void DeleteLocations(std::vector<const Location* const>& locations);
+
+    /// @brief This will read the locations currently on disk
+    /// @return The list of locations on disk 
+    virtual std::vector<const Location* const> GetLocationsOnDisk();
+
 public:
     /// @brief This is the class constructor, taking a string file flor loading the database
     /// @param location_file 
@@ -24,7 +34,7 @@ public:
     ~FileLocationDatabase();
 
     /// @brief This should load the location database, repeated calls should refresh the database. 
-    /// @return True if the database was loaded successfully, False if not
+    /// @return True if the database was updated successfully, False if not
     bool Load();
 
     /// @brief This returns the current list of locations in the location database

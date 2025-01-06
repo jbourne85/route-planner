@@ -16,7 +16,7 @@ public:
 
     /// @brief This should load the location database, repeated calls will the database. If an error occurrs on loading
     ///        the previous list of locations will be kept
-    /// @return True if the locations were loaded successfully, False if not
+    /// @return True if the locations were updated successfully, False if not
     virtual bool Load() = 0;
 
     /// @brief This should load all the locations from the source the concrete version of this
