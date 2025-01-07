@@ -35,7 +35,7 @@ public:
     /// @param locations the list of locations to search
     /// @param name The name of the location to find
     /// @return The location on success, nullptr on failure
-    const Location* const GetLocationByName(std::vector<const Location* const> locations, std::string name) {
+    const Location* const MockGetLocationByName(std::vector<const Location* const> locations, std::string name) {
         std::vector<const Location* const> results;
         std::for_each (locations.begin(), locations.end(), [this, &results, name](const Location* const location) mutable {
             if (location->Name() == name) {
@@ -62,9 +62,9 @@ TEST(AddTest, TestMockGetLocationByName)
     std::vector<const Location* const> locations = {&london, &glasgow, &brighton};
 
     // Check finding each of the values, and they are the correct pointer
-    EXPECT_EQ(&london, test_db.GetLocationByName(locations, "London"));
-    EXPECT_EQ(&glasgow, test_db.GetLocationByName(locations, "Glasgow"));
-    EXPECT_EQ(&brighton, test_db.GetLocationByName(locations, "Brighton"));
+    EXPECT_EQ(&london, test_db.MockGetLocationByName(locations, "London"));
+    EXPECT_EQ(&glasgow, test_db.MockGetLocationByName(locations, "Glasgow"));
+    EXPECT_EQ(&brighton, test_db.MockGetLocationByName(locations, "Brighton"));
 }
 
 /// @brief Test case for FileLocationDatabase::GetLocationsOnDisk() For testing successfully loading the locations from disk
@@ -78,19 +78,19 @@ TEST(AddTest, TestLocationsOnDiskSuccess)
     EXPECT_EQ(3, locations.size());
 
     // Check the 3 cities are loaded and have correct info
-    auto london = test_db.GetLocationByName(locations, "London");
+    auto london = test_db.MockGetLocationByName(locations, "London");
 
     EXPECT_NE(nullptr, london);
     EXPECT_EQ("London", london->Name());
     EXPECT_EQ(5, london->Cost());
 
-    auto glasgow = test_db.GetLocationByName(locations, "Glasgow");
+    auto glasgow = test_db.MockGetLocationByName(locations, "Glasgow");
 
     EXPECT_NE(nullptr, glasgow);
     EXPECT_EQ("Glasgow", glasgow->Name());
     EXPECT_EQ(3, glasgow->Cost());
 
-    auto brighton = test_db.GetLocationByName(locations, "Brighton");
+    auto brighton = test_db.MockGetLocationByName(locations, "Brighton");
 
     EXPECT_NE(nullptr, brighton);
     EXPECT_EQ("Brighton", brighton->Name());
