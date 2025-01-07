@@ -67,7 +67,7 @@ TEST(AddTest, TestMockGetLocationByName)
 }
 
 /// @brief Test case for FileLocationDatabase::GetLocationsOnDisk() For testing successfully loading the locations from disk
-TEST(AddTest, TestLoadSuccess)
+TEST(AddTest, TestLocationsOnDiskSuccess)
 {
     const std::string test_data_file = "test_data/route/test_load_success.csv";
     MockFileLocationDatabase test_db(test_data_file);
@@ -97,7 +97,7 @@ TEST(AddTest, TestLoadSuccess)
 }
 
 /// @brief Test case for FileLocationDatabase::GetLocationsOnDisk() For testing the locations source file not existing
-TEST(AddTest, TestLoadErrorFileMissing)
+TEST(AddTest, TestLocationsOnDiskErrorFileMissing)
 {
     const std::string test_data_file = "test_data/route/test_non_existant_file.csv";
     MockFileLocationDatabase test_db(test_data_file);
@@ -110,7 +110,7 @@ TEST(AddTest, TestLoadErrorFileMissing)
 }
 
 /// @brief Test case for FileLocationDatabase::GetLocationsOnDisk() For testing a parsing error during loading the locations
-TEST(AddTest, TestLoadErrorWhileParsing)
+TEST(AddTest, TestLocationsOnDiskErrorWhileParsing)
 {
     const std::string test_data_file = "test_data/route/test_load_bad_data.csv";
     MockFileLocationDatabase test_db(test_data_file);
