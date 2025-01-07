@@ -136,7 +136,7 @@ TEST(AddTest, TestLoadSuccess)
 
     std::vector<const Location* const> locations = {&london, &glasgow, &brighton};
 
-    EXPECT_CALL(test_db, GetLocationsOnDisk()).WillOnce([&test_db, locations](){
+    EXPECT_CALL(test_db, GetLocationsOnDisk()).WillOnce([locations](){
         return locations;
     }); 
 
@@ -158,4 +158,21 @@ TEST(AddTest, TestLoadSuccess)
 
     bool result = test_db.Load();
     EXPECT_TRUE(result);
+}
+
+/// @brief Test case for FileLocationDatabase::Load() For a failed load from disk
+TEST(AddTest, TestLoadFailed)
+{
+    MockFileLocationDatabase test_db;
+
+    EXPECT_CALL(test_db, GetLocationsOnDisk()).WillOnce([](){
+        return std::vector<const Location* const>();
+    }); 
+
+    EXPECT_CALL(test_db, DeleteLocations(testing::_)).Times(0);
+
+    EXPECT_CALL(test_db, AddLocation(testing::_)).Times(0);
+
+    bool result = test_db.Load();
+    EXPECT_FALSE(result);
 }
