@@ -25,6 +25,11 @@ void FileLocationDatabase::DeleteLocations(std::vector<const Location* const>& l
     locations.clear();
 }
 
+void FileLocationDatabase::AddLocation(const Location* const location) {
+    m_location_list.push_back(location);
+    m_location_map.insert(std::make_pair(location->Name(), location));
+}
+
 std::vector<const Location* const> FileLocationDatabase::GetLocationsOnDisk() {
     std::vector<const Location* const> locations_on_disk;
     std::ifstream file(m_database_file);
@@ -83,8 +88,7 @@ bool FileLocationDatabase::Load() {
 
     // Re-load with the new locations from disk
     std::for_each (locations_on_disk.begin(), locations_on_disk.end(), [this](const Location* const location) -> void {
-        m_location_list.push_back(location);
-        m_location_map.insert(std::make_pair(location->Name(), location));
+        AddLocation(location);
     });
 
     return true;

@@ -25,6 +25,9 @@ protected:
     /// @return The list of locations on disk 
     virtual std::vector<const Location* const> GetLocationsOnDisk();
 
+    /// @brief This should add a location to the location database
+    /// @param location The new location to add
+    virtual void AddLocation(const Location* const location);
 public:
     /// @brief This is the class constructor, taking a string file flor loading the database
     /// @param location_file 

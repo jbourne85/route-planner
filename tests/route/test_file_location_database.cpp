@@ -13,6 +13,7 @@ public:
     
     MOCK_METHOD(void, DeleteLocations, (std::vector<const Location* const>&), (override));
     MOCK_METHOD(std::vector<const Location* const>, GetLocationsOnDisk, (), (override));
+    MOCK_METHOD(void, AddLocation, (const Location* const), (override));
 
     /// @brief Adapter method to call FileLocationDatabase::GetLocationsOnDisk from the mock
     std::vector<const Location* const> RealGetLocationsOnDisk() {
@@ -22,6 +23,11 @@ public:
     /// @brief Adapter method to call FileLocationDatabase::DeleteLocations from the mock
     void RealDeleteLocations(std::vector<const Location* const>& locations) {
         FileLocationDatabase::DeleteLocations(locations);
+    }
+
+    /// @brief Adapter method to call FileLocationDatabase::AddLocation from the mock
+    void RealAddLocation(const Location* const location) {
+        FileLocationDatabase::AddLocation(location);
     }
 
     /// @brief Utility method to return a Location by name, useful for simplifying the test code
