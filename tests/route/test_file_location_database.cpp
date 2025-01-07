@@ -5,6 +5,7 @@
 
 using namespace route;
 
+const std::string TEST_FILE_LOCATION_DATBASE_DATA_DIR("test_data/route/test_file_location_database");
 
 /// @brief this is the Mock File Database class, its used to mock and control the locations read from disk
 class MockFileLocationDatabase : public FileLocationDatabase {
@@ -48,6 +49,10 @@ public:
         }
         return nullptr;
     }  
+
+    static std::string GetDataPath(const std::string data_file) {
+        return std::string(TEST_FILE_LOCATION_DATBASE_DATA_DIR + "/" + data_file);
+    }
 };
 
 /// @brief Test case to test MockFileLocationDatabase::GetLocationByName() which is used by the other tests
@@ -70,7 +75,7 @@ TEST(AddTest, TestMockGetLocationByName)
 /// @brief Test case for FileLocationDatabase::GetLocationsOnDisk() For testing successfully loading the locations from disk
 TEST(AddTest, TestLocationsOnDiskSuccess)
 {
-    const std::string test_data_file = "test_data/route/test_load_success.csv";
+    const std::string test_data_file = MockFileLocationDatabase::GetDataPath("test_load_success.csv");
     MockFileLocationDatabase test_db(test_data_file);
 
     auto locations = test_db.RealGetLocationsOnDisk();
@@ -100,7 +105,7 @@ TEST(AddTest, TestLocationsOnDiskSuccess)
 /// @brief Test case for FileLocationDatabase::GetLocationsOnDisk() For testing the locations source file not existing
 TEST(AddTest, TestLocationsOnDiskErrorFileMissing)
 {
-    const std::string test_data_file = "test_data/route/test_non_existant_file.csv";
+    const std::string test_data_file = MockFileLocationDatabase::GetDataPath("test_non_existant_file.csv");
     MockFileLocationDatabase test_db(test_data_file);
 
     EXPECT_CALL(test_db, DeleteLocations(testing::_)).Times(0);
@@ -113,7 +118,7 @@ TEST(AddTest, TestLocationsOnDiskErrorFileMissing)
 /// @brief Test case for FileLocationDatabase::GetLocationsOnDisk() For testing a parsing error during loading the locations
 TEST(AddTest, TestLocationsOnDiskErrorWhileParsing)
 {
-    const std::string test_data_file = "test_data/route/test_load_bad_data.csv";
+    const std::string test_data_file = MockFileLocationDatabase::GetDataPath("test_load_bad_data.csv");
     MockFileLocationDatabase test_db(test_data_file);
 
     EXPECT_CALL(test_db, DeleteLocations(testing::_)).Times(1).WillOnce([&test_db](std::vector<const Location* const>& locations){
