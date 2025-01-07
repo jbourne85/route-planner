@@ -33,8 +33,8 @@ public:
     /// @param location_file 
     FileLocationDatabase(const std::string location_file);
 
-    /// @brief This is the class constructor.
-    ~FileLocationDatabase();
+    /// @brief This is the class destructor.
+    virtual ~FileLocationDatabase();
 
     /// @brief This should load the location database, repeated calls should refresh the database. 
     /// @return True if the database was updated successfully, False if not
