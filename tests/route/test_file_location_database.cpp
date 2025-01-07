@@ -9,6 +9,7 @@ using namespace route;
 /// @brief this is the Mock File Database class, its used to mock and control the locations read from disk
 class MockFileLocationDatabase : public FileLocationDatabase {
 public:
+    MockFileLocationDatabase() : FileLocationDatabase("test_data.csv") {}
     MockFileLocationDatabase(const std::string location_file) : FileLocationDatabase(location_file) {}
     
     MOCK_METHOD(void, DeleteLocations, (std::vector<const Location* const>&), (override));
@@ -122,4 +123,39 @@ TEST(AddTest, TestLocationsOnDiskErrorWhileParsing)
     auto locations = test_db.RealGetLocationsOnDisk();
 
     EXPECT_EQ(0, locations.size());
+}
+
+/// @brief Test case for FileLocationDatabase::Load() For a successful load from disk
+TEST(AddTest, TestLoadSuccess)
+{
+    MockFileLocationDatabase test_db;
+
+    Location london("London", 5);
+    Location glasgow("Glasgow", 3);
+    Location brighton("Brighton", 1);
+
+    std::vector<const Location* const> locations = {&london, &glasgow, &brighton};
+
+    EXPECT_CALL(test_db, GetLocationsOnDisk()).WillOnce([&test_db, locations](){
+        return locations;
+    }); 
+
+    EXPECT_CALL(test_db, DeleteLocations(testing::_)).WillOnce([](std::vector<const Location* const>& locations) {
+        EXPECT_EQ(0, locations.size());
+    }); 
+
+    EXPECT_CALL(test_db, AddLocation(testing::_))
+    .Times(3)
+    .WillOnce([&london](const Location* const new_location) {
+        EXPECT_EQ(&london, new_location);
+    })
+    .WillOnce([&glasgow](const Location* const new_location) {
+        EXPECT_EQ(&glasgow, new_location);
+    })
+    .WillOnce([&brighton](const Location* const new_location) {
+        EXPECT_EQ(&brighton, new_location);
+    });
+
+    bool result = test_db.Load();
+    EXPECT_TRUE(result);
 }
