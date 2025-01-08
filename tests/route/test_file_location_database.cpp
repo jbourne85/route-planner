@@ -131,7 +131,7 @@ TEST(AddTest, TestLocationsOnDiskErrorWhileParsing)
 }
 
 /// @brief Test case for FileLocationDatabase::Load() For a successful load from disk
-TEST(AddTest, TestLoadSuccess)
+TEST(AddTest, TestLocationsLoadSuccess)
 {
     MockFileLocationDatabase test_db;
 
@@ -166,7 +166,7 @@ TEST(AddTest, TestLoadSuccess)
 }
 
 /// @brief Test case for FileLocationDatabase::Load() For a failed load from disk
-TEST(AddTest, TestLoadFailed)
+TEST(AddTest, TestLocationsLoadFailed)
 {
     MockFileLocationDatabase test_db;
 
