@@ -109,3 +109,14 @@ TEST(AddTest, TestRoutesOnDiskSuccess)
     EXPECT_EQ("Glasgow", johnogroates_routes[0]);
     EXPECT_EQ("Endinburgh", johnogroates_routes[1]);
 }
+
+/// @brief Test case for MockFileRouteDatabase::GetRoutesOnDisk() For testing the routes source file not existing
+TEST(AddTest, TestRoutesOnDiskErrorFileMissing)
+{
+    const std::string test_data_file = MockFileRouteDatabase::GetDataPath("test_non_existant_file.csv");
+    MockFileRouteDatabase test_db(test_data_file);
+
+    auto routes = test_db.RealGetRoutesOnDisk();
+
+    EXPECT_EQ(0, routes.size());
+}
