@@ -79,7 +79,7 @@ TEST(AddTest, TestMockGetRoutesByName)
     EXPECT_EQ("Endinburgh", johnogroates_routes[1]);
 }
 
-/// @brief Test case for FileLocationDatabase::GetLocationsOnDisk() For testing successfully loading the locations from disk
+/// @brief Test case for MockFileRouteDatabase::GetRoutesOnDisk() For testing successfully loading the routes from disk
 TEST(AddTest, TestRoutesOnDiskSuccess)
 {
     const std::string test_data_file = MockFileRouteDatabase::GetDataPath("test_load_success.csv");
