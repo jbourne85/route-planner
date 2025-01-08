@@ -1,5 +1,5 @@
-#ifndef ILOCATIONSOURCE_H
-#define ILOCATIONSOURCE_H
+#ifndef ILOCATIONDATABASE_H
+#define ILOCATIONDATABASE_H
 
 #include "route/Location.h"
 
@@ -14,7 +14,7 @@ public:
     ILocationDatabase() {}
     virtual ~ILocationDatabase() {}
 
-    /// @brief This should load the location database, repeated calls will the database. If an error occurrs on loading
+    /// @brief This should load the location database, repeated calls will reload the database. If an error occurrs on loading
     ///        the previous list of locations will be kept
     /// @return True if the locations were updated successfully, False if not
     virtual bool Load() = 0;

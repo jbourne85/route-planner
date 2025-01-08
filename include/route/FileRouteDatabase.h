@@ -3,10 +3,12 @@
 
 #include <string>
 #include <unordered_map>
+#include "route/IRouteDatabase.h"
 
 namespace route {
 
-class FileRouteDatabase {
+/// @brief This class manages the database of routes. It knows how to load and sync them from a datafile
+class FileRouteDatabase : public IRouteDatabase {
     const std::string m_route_file;
     std::unordered_map<std::string, std::vector<std::string>> m_routes; ///A string map of start -> end locations (where end is a list avaliable locations)
 protected:
@@ -18,13 +20,13 @@ public:
     FileRouteDatabase(const std::string route_file);    
 
     /// @brief This will load the routes
-    /// @return The list of routes on disk 
+    /// @return True on success, False if not
     bool Load();
 
     /// @brief This will return a list of routes from a given start location
-    /// @param start_location This is the name of the start location to get the valid routes for 
+    /// @param start_location_name This is the name of the start location to get the valid routes for 
     /// @return The list of routes from that start location
-    std::vector<std::string> GetRoutes(const std::string start_location) const;
+    std::vector<std::string> GetRoutes(const std::string start_location_name) const;
 };
 }
 
