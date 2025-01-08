@@ -52,10 +52,23 @@ std::unordered_map<std::string, std::vector<std::string>> FileRouteDatabase::Get
 
 
 bool FileRouteDatabase::Load() {
-    return false;
+    //Get the routes on disk
+    auto routes_on_disk = GetRoutesOnDisk();
+    if (!routes_on_disk.size()) {
+        return false;
+    }
+
+    // Update the routes database
+    m_routes = routes_on_disk;    
+
+    return true;
 }
 
 std::vector<std::string> FileRouteDatabase::GetRoute(const std::string start_location) const {
+    auto routes = m_routes.find(start_location);
+    if (routes != m_routes.end()) {
+        return routes->second;
+    }
     return std::vector<std::string>();
 }
 

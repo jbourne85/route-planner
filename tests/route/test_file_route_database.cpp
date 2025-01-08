@@ -110,7 +110,7 @@ TEST(AddTest, TestRoutesOnDiskSuccess)
     EXPECT_EQ("Endinburgh", johnogroates_routes[1]);
 }
 
-/// @brief Test case for MockFileRouteDatabase::GetRoutesOnDisk() For testing the routes source file not existing
+/// @brief Test case for FileRouteDatabase::GetRoutesOnDisk() For testing the routes source file not existing
 TEST(AddTest, TestRoutesOnDiskErrorFileMissing)
 {
     const std::string test_data_file = MockFileRouteDatabase::GetDataPath("test_non_existant_file.csv");
@@ -119,4 +119,48 @@ TEST(AddTest, TestRoutesOnDiskErrorFileMissing)
     auto routes = test_db.RealGetRoutesOnDisk();
 
     EXPECT_EQ(0, routes.size());
+}
+
+/// @brief Test case for FileRouteDatabase::Load() For a successful load from disk
+TEST(AddTest, TestRouteLoadSuccess)
+{
+    MockFileRouteDatabase test_db;
+
+    std::unordered_map<std::string, std::vector<std::string>> routes;
+
+    std::vector<std::string> london_routes = {"Brighton", "Bath", "Oxford", "Leicester", "Cambridge"};
+    routes.insert(std::make_pair("London", london_routes));
+
+    std::vector<std::string> manchester_routes = {"Birmingham", "Liverpool", "Sheffield"};
+    routes.insert(std::make_pair("Manchester", manchester_routes));
+
+    std::vector<std::string> johnogroates_routes = {"Glasgow", "Endinburgh"};
+    routes.insert(std::make_pair("John O' Groats", johnogroates_routes));
+
+    EXPECT_CALL(test_db, GetRoutesOnDisk()).WillOnce([routes](){
+        return routes;
+    }); 
+
+    bool result = test_db.Load();
+    EXPECT_TRUE(result);
+
+    // Check the 3 cities and their routes are correct
+    london_routes = test_db.GetRoute("London");
+    EXPECT_EQ(5, london_routes.size());
+    EXPECT_EQ("Brighton", london_routes[0]);
+    EXPECT_EQ("Bath",   london_routes[1]);
+    EXPECT_EQ("Oxford", london_routes[2]);
+    EXPECT_EQ("Leicester", london_routes[3]);
+    EXPECT_EQ("Cambridge", london_routes[4]);
+
+    manchester_routes = test_db.GetRoute("Manchester");
+    EXPECT_EQ(3, manchester_routes.size());
+    EXPECT_EQ("Birmingham", manchester_routes[0]);
+    EXPECT_EQ("Liverpool", manchester_routes[1]);
+    EXPECT_EQ("Sheffield", manchester_routes[2]);
+
+    johnogroates_routes = test_db.GetRoute("John O' Groats");
+    EXPECT_EQ(2, johnogroates_routes.size());
+    EXPECT_EQ("Glasgow", johnogroates_routes[0]);
+    EXPECT_EQ("Endinburgh", johnogroates_routes[1]);
 }
