@@ -122,7 +122,7 @@ TEST(AddTest, TestRoutesOnDiskErrorFileMissing)
 }
 
 /// @brief Test case for FileRouteDatabase::Load() For a successful load from disk
-TEST(AddTest, TestRouteLoadSuccess)
+TEST(AddTest, TestRoutesLoadSuccess)
 {
     MockFileRouteDatabase test_db;
 
@@ -163,4 +163,17 @@ TEST(AddTest, TestRouteLoadSuccess)
     EXPECT_EQ(2, johnogroates_routes.size());
     EXPECT_EQ("Glasgow", johnogroates_routes[0]);
     EXPECT_EQ("Endinburgh", johnogroates_routes[1]);
+}
+
+/// @brief Test case for FileRouteDatabase::Load() For a failed load from disk
+TEST(AddTest, TestRoutesLoadFailed)
+{
+    MockFileRouteDatabase test_db;
+
+    EXPECT_CALL(test_db, GetRoutesOnDisk()).WillOnce([](){
+        return std::unordered_map<std::string, std::vector<std::string>>();
+    }); 
+
+    bool result = test_db.Load();
+    EXPECT_FALSE(result);
 }
