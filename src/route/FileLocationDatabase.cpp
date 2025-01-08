@@ -34,7 +34,7 @@ std::vector<const Location* const> FileLocationDatabase::GetLocationsOnDisk() {
     std::vector<const Location* const> locations_on_disk;
     std::ifstream file(m_database_file);
     if (!file.is_open()) {
-        std::cerr << "Error: Could not open the databse file " << m_database_file << std::endl;
+        std::cerr << "Error: Could not open the database file " << m_database_file << std::endl;
         return locations_on_disk;
     }
 
