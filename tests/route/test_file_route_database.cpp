@@ -145,7 +145,7 @@ TEST(AddTest, TestRoutesLoadSuccess)
     EXPECT_TRUE(result);
 
     // Check the 3 cities and their routes are correct
-    london_routes = test_db.GetRoute("London");
+    london_routes = test_db.GetRoutes("London");
     EXPECT_EQ(5, london_routes.size());
     EXPECT_EQ("Brighton", london_routes[0]);
     EXPECT_EQ("Bath",   london_routes[1]);
@@ -153,13 +153,13 @@ TEST(AddTest, TestRoutesLoadSuccess)
     EXPECT_EQ("Leicester", london_routes[3]);
     EXPECT_EQ("Cambridge", london_routes[4]);
 
-    manchester_routes = test_db.GetRoute("Manchester");
+    manchester_routes = test_db.GetRoutes("Manchester");
     EXPECT_EQ(3, manchester_routes.size());
     EXPECT_EQ("Birmingham", manchester_routes[0]);
     EXPECT_EQ("Liverpool", manchester_routes[1]);
     EXPECT_EQ("Sheffield", manchester_routes[2]);
 
-    johnogroates_routes = test_db.GetRoute("John O' Groats");
+    johnogroates_routes = test_db.GetRoutes("John O' Groats");
     EXPECT_EQ(2, johnogroates_routes.size());
     EXPECT_EQ("Glasgow", johnogroates_routes[0]);
     EXPECT_EQ("Endinburgh", johnogroates_routes[1]);

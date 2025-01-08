@@ -24,7 +24,7 @@ public:
     /// @brief This will return a list of routes from a given start location
     /// @param start_location This is the name of the start location to get the valid routes for 
     /// @return The list of routes from that start location
-    std::vector<std::string> GetRoute(const std::string start_location) const;
+    std::vector<std::string> GetRoutes(const std::string start_location) const;
 };
 }
 

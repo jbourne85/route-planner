@@ -64,7 +64,7 @@ bool FileRouteDatabase::Load() {
     return true;
 }
 
-std::vector<std::string> FileRouteDatabase::GetRoute(const std::string start_location) const {
+std::vector<std::string> FileRouteDatabase::GetRoutes(const std::string start_location) const {
     auto routes = m_routes.find(start_location);
     if (routes != m_routes.end()) {
         return routes->second;
