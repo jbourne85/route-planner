@@ -18,20 +18,20 @@ FileLocationDatabase::~FileLocationDatabase() {
     DeleteLocations(m_location_list);
 }
 
-void FileLocationDatabase::DeleteLocations(std::vector<const Location* const>& locations) {
-    std::for_each (m_location_list.begin(), m_location_list.end(), [this](const Location* const location) -> void {
+void FileLocationDatabase::DeleteLocations(std::vector<Location* const>& locations) {
+    std::for_each (m_location_list.begin(), m_location_list.end(), [this](Location* const location) -> void {
         delete location;
     });
     locations.clear();
 }
 
-void FileLocationDatabase::AddLocation(const Location* const location) {
+void FileLocationDatabase::AddLocation(Location* const location) {
     m_location_list.push_back(location);
     m_location_map.insert(std::make_pair(location->Name(), location));
 }
 
-std::vector<const Location* const> FileLocationDatabase::GetLocationsOnDisk() {
-    std::vector<const Location* const> locations_on_disk;
+std::vector<Location* const> FileLocationDatabase::GetLocationsOnDisk() {
+    std::vector<Location* const> locations_on_disk;
     std::ifstream file(m_database_file);
     if (!file.is_open()) {
         std::cerr << "Error: Could not open the database file " << m_database_file << std::endl;
@@ -87,18 +87,18 @@ bool FileLocationDatabase::Load() {
     m_location_map.clear();    
 
     // Re-load with the new locations from disk
-    std::for_each (locations_on_disk.begin(), locations_on_disk.end(), [this](const Location* const location) -> void {
+    std::for_each (locations_on_disk.begin(), locations_on_disk.end(), [this](Location* const location) -> void {
         AddLocation(location);
     });
 
     return true;
 }
 
-std::vector<const Location* const> FileLocationDatabase::GetLocations() {
+std::vector<Location* const> FileLocationDatabase::GetLocations() {
     return m_location_list;
 }
 
-const Location* const FileLocationDatabase::GetLocation(std::string location_name) const {
+Location* const FileLocationDatabase::GetLocation(std::string location_name) const {
     auto location = m_location_map.find(location_name);
     if (location != m_location_map.end()) {
         return location->second;

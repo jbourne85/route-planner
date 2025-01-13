@@ -11,23 +11,23 @@ namespace route {
 /// @brief This class manages the database of locations. It knows how to load and sync it from a datafile
 class FileLocationDatabase : public ILocationDatabase {
     const std::string m_database_file;
-    std::unordered_map<std::string, const Location* const> m_location_map;  
-    std::vector<const Location* const> m_location_list;  
+    std::unordered_map<std::string, Location* const> m_location_map;  
+    std::vector<Location* const> m_location_list;  
     
     FileLocationDatabase(const FileLocationDatabase& other); //copying of the Location database is dissalowed
 
 protected:
     /// @brief This will delete all the locations in a given location list 
     /// @param locations The list to iterate over and free up the memory
-    virtual void DeleteLocations(std::vector<const Location* const>& locations);
+    virtual void DeleteLocations(std::vector<Location* const>& locations);
 
     /// @brief This will read the locations currently on disk
     /// @return The list of locations on disk 
-    virtual std::vector<const Location* const> GetLocationsOnDisk();
+    virtual std::vector<Location* const> GetLocationsOnDisk();
 
     /// @brief This should add a location to the location database
     /// @param location The new location to add
-    virtual void AddLocation(const Location* const location);
+    virtual void AddLocation(Location* const location);
 public:
     /// @brief This is the class constructor, taking a string file flor loading the database
     /// @param location_file 
@@ -42,12 +42,12 @@ public:
 
     /// @brief This returns the current list of locations in the location database
     /// @return List of locations
-    std::vector<const Location* const> GetLocations();
+    std::vector<Location* const> GetLocations();
 
     /// @brief This returns a particular location based on its name
     /// @param location_name The name of the location to get
     /// @return A location pointer
-    const Location* const GetLocation(std::string location_name) const;  
+    Location* const GetLocation(std::string location_name) const;  
 };
 
 }

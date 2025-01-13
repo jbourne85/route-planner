@@ -30,12 +30,12 @@ public:
 
     /// @brief Setter for adding a valid destination from this location
     /// @param destination location to add as a valid destination from this
-    void AddDestination(const Location* const destination);
+    void AddDestination(const Location* destination);
 
     /// @brief Check if a destinaton is valid from this location
     /// @param destination The valid destination to look for
     /// @return True if it is, False if not
-    bool DestinationIsValid(const Location* const destination);
+    bool DestinationIsValid(const Location* destination);
 };
 
 }

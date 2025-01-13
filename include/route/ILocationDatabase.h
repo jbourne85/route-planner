@@ -22,12 +22,12 @@ public:
     /// @brief This should load all the locations from the source the concrete version of this
     ///        class represents
     /// @return A list of pointers to the loaded locations
-    virtual std::vector<const Location* const> GetLocations() = 0;
+    virtual std::vector<Location* const> GetLocations() = 0;
 
     /// @brief This should returns a particular location based on its name
     /// @param location_name The name of the location to get
     /// @return A location pointer
-    virtual const Location* const GetLocation(std::string location_name) const = 0;  
+    virtual Location* const GetLocation(std::string location_name) const = 0;  
 
 };
 }
