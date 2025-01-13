@@ -14,12 +14,12 @@ public:
     /// @brief This should load the route database, repeated calls will reload the database. If an error occurrs on loading
     ///        the previous list of routes will be kept
     /// @return True if the routes were updated successfully, False if not
-    bool Load();
+    virtual bool Load() = 0;
 
     /// @brief This should returns a particular route based on its name
     /// @param start_location_name The name of the route to get based on the start location name
     /// @return A list of valid routes
-    std::vector<std::string> GetRoutes(const std::string start_location_name) const;
+    virtual std::vector<std::string> GetRoutes(const std::string start_location_name) const = 0;
 };
 
 }
