@@ -1,6 +1,7 @@
 #include <boost/asio.hpp>
 #include "messages/MsgFactory.h"
 #include "messages/MsgHeader.h"
+#include "messages/MsgLocations.h"
 #include "messages/MsgStatus.h"
 
 namespace messages {
@@ -14,6 +15,10 @@ MsgHeader::MsgPointer MsgFactory::Create(const unsigned int id) const {
             return MsgHeader::MsgPointer(new MsgStatusRequest()); 
         case MSG_STATUS_RESPONSE_ID:
             return MsgHeader::MsgPointer(new MsgStatusResponse()); 
+        case MSG_LOCATIONS_REQUEST_ID:
+            return MsgHeader::MsgPointer(new MsgLocationsRequest());
+        case MSG_LOCATIONS_RESPONSE_ID:
+            return MsgHeader::MsgPointer(new MsgLocationsResponse());
     }
     return MsgHeader::MsgPointer(nullptr);
 }
@@ -23,7 +28,7 @@ MsgHeader::MsgPointer MsgFactory::Header() const {
 }
 
 size_t MsgFactory::MaxLength() const {
-    return sizeof(MsgStatusResponse);
+    return sizeof(MsgLocationsResponse);
 }
 
 }

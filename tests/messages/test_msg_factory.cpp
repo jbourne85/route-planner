@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "messages/MsgFactory.h"
 #include "messages/MsgHeader.h"
+#include "messages/MsgLocations.h"
 #include "messages/MsgStatus.h"
 
 using namespace messages;
@@ -36,6 +37,7 @@ TEST_F(MsgFactoryTest, MsgStatusRequestCreate)
 
     EXPECT_EQ(status_request->id, MSG_STATUS_REQUEST_ID);
     EXPECT_EQ(status_request->length, sizeof(MsgStatusRequest));
+    EXPECT_NE(MsgHeader::GetDerivedType<MsgStatusRequest>(status_request), nullptr);
 }
 
 TEST_F(MsgFactoryTest, MsgStatusResponseCreate)
@@ -44,6 +46,25 @@ TEST_F(MsgFactoryTest, MsgStatusResponseCreate)
 
     EXPECT_EQ(status_response->id, MSG_STATUS_RESPONSE_ID);
     EXPECT_EQ(status_response->length, sizeof(MsgStatusResponse));
+    EXPECT_NE(MsgHeader::GetDerivedType<MsgStatusResponse>(status_response), nullptr);
+}
+
+TEST_F(MsgFactoryTest, MsgLocationsRequestCreate)
+{
+    auto locations_request = msg_factory->Create(MSG_LOCATIONS_REQUEST_ID);
+
+    EXPECT_EQ(locations_request->id, MSG_LOCATIONS_REQUEST_ID);
+    EXPECT_EQ(locations_request->length, sizeof(MsgLocationsRequest));
+    EXPECT_NE(MsgHeader::GetDerivedType<MsgLocationsRequest>(locations_request), nullptr);
+}
+
+TEST_F(MsgFactoryTest, MsgLocationsResponseCreate)
+{
+    auto locations_response = msg_factory->Create(MSG_LOCATIONS_RESPONSE_ID);
+
+    EXPECT_EQ(locations_response->id, MSG_LOCATIONS_RESPONSE_ID);
+    EXPECT_EQ(locations_response->length, sizeof(MsgLocationsResponse));
+    EXPECT_NE(MsgHeader::GetDerivedType<MsgLocationsResponse>(locations_response), nullptr);
 }
 
 TEST_F(MsgFactoryTest, MsgNoMatchCreate)
@@ -55,7 +76,13 @@ TEST_F(MsgFactoryTest, MsgNoMatchCreate)
 
 TEST_F(MsgFactoryTest, MaxMsgLength)
 {
-    std::vector msg_ids = {MSG_HEADER_ID, MSG_STATUS_REQUEST_ID, MSG_STATUS_RESPONSE_ID};
+    std::vector msg_ids = {
+        MSG_HEADER_ID, 
+        MSG_STATUS_REQUEST_ID, 
+        MSG_STATUS_RESPONSE_ID, 
+        MSG_LOCATIONS_REQUEST_ID, 
+        MSG_LOCATIONS_RESPONSE_ID
+    };
 
     size_t max_message_size = 0;
 

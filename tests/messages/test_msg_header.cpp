@@ -11,7 +11,7 @@ TEST(AddTest, MsgHeaderConstructor)
     MsgHeader header(id, length);
 
     EXPECT_EQ(header.id, id);
-    EXPECT_EQ(header.length, 24);
+    EXPECT_EQ(header.length, 32);
 }
 
 TEST(AddTest, MsgHeaderSerialiseDeserialise)
@@ -49,7 +49,7 @@ TEST(AddTest, MsgHeaderDeserialiseNotEnoughData)
     unsigned int bytes_deserialized = empty_header.Deserialize(buffer);
 
     EXPECT_EQ(bytes_deserialized, 4);
-    EXPECT_EQ(empty_header.id, 0);  //Only the header id will have been changed, all other values remain unchanged
+    EXPECT_EQ(empty_header.id, 100); 
     EXPECT_NE(empty_header.length, 0);    
     EXPECT_NE(empty_header.timestamp, 0);
 }

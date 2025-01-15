@@ -4,6 +4,7 @@
 #include <algorithm> 
 #include <cstdlib>
 #include <boost/asio.hpp>
+#include <memory>
 #include <vector>
 
 namespace messages {
@@ -18,7 +19,7 @@ struct MsgHeader {
     typedef std::function<MsgHeader::MsgPointer(MsgHeader::MsgPointer)> MsgHandler; //typedef for a mesage handler function
 
     MsgHeader(const unsigned int id, const size_t length) : id(id), length(length), timestamp(std::time(0)) {}
-    
+    virtual ~MsgHeader() {}
 
     /// @brief This method can be used to serialize a Msg
     /// @param buffer the char buffer to serialize into
@@ -26,7 +27,7 @@ struct MsgHeader {
     {
         buffer.clear();        
         buffer.resize(length);
-        std::memcpy(buffer.data(), this, length);
+        std::memcpy(buffer.data(), (char*)this, length);
     }
 
     /// @brief This method can be used to deserialize a Msg object from a char buffer
@@ -34,8 +35,17 @@ struct MsgHeader {
     /// @return The number of bytes that have be successfully deserialised
     size_t Deserialize(std::vector<char>& buffer)
     {
-        std::memcpy(this, buffer.data(), std::min(length, buffer.size()));
+        std::memcpy((char*)this, buffer.data(), std::min(length, buffer.size()));
         return buffer.size();
+    }
+
+    /// @brief Converts the current header instance into a derived class
+    /// @tparam MsgDerivedType This is the derived class type to attempt to convert to
+    /// @param header This is the base msg pointer type
+    /// @return A valid derived class pointer on success, nullptr on failure
+    template<typename MsgDerivedType>
+    static typename MsgDerivedType::MsgPointer GetDerivedType(MsgHeader::MsgPointer msg) {
+        return std::dynamic_pointer_cast<MsgDerivedType>(msg);
     }
 };
 
