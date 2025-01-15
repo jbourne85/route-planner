@@ -9,7 +9,7 @@ m_route_db(route_db)
 {
 }
 
-std::vector<Location* const> RoutePlanner::GetRoutes() const{
+std::vector<Location* const> RoutePlanner::SetupRoutes() const{
     if (m_location_db->Load() || m_route_db->Load()) {
         std::vector<Location* const> locations = m_location_db->GetLocations();
 
@@ -31,10 +31,10 @@ std::vector<Location* const> RoutePlanner::GetRoutes() const{
     }
 }
 
-std::vector<std::string> RoutePlanner::GetLocations() const {
+std::vector<std::string> RoutePlanner::GetLocationNames() const {
     std::vector<std::string> location_names;
 
-    std::vector<Location* const> locations = GetRoutes();
+    std::vector<Location* const> locations = SetupRoutes();
 
     std::for_each(locations.begin(), locations.end(), [this, &location_names](Location* const location) -> void {
         location_names.push_back(location->Name());

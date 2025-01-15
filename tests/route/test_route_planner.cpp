@@ -11,11 +11,11 @@ class MockRoutePlanner : public RoutePlanner {
 public:
     MockRoutePlanner(std::shared_ptr<ILocationDatabase> location_db, std::shared_ptr<IRouteDatabase> route_db) : RoutePlanner(location_db, route_db) {}
     
-    MOCK_METHOD(std::vector<Location* const>, GetRoutes, (), (override, const));
+    MOCK_METHOD(std::vector<Location* const>, SetupRoutes, (), (override, const));
 
     /// @brief Adapter method to call RoutePlanner::getRoutes from the mock
-    std::vector<Location* const> MockGetRoutes() {
-        return RoutePlanner::GetRoutes();
+    std::vector<Location* const> MockSetupRoutes() {
+        return RoutePlanner::SetupRoutes();
     }
 };
 
@@ -103,7 +103,7 @@ TEST_F(RoutePlannerTest, GetRoutesSuccess)
         return location_match;
     }); 
 
-    auto calculated_routes = route_planner->MockGetRoutes();
+    auto calculated_routes = route_planner->MockSetupRoutes();
 
     EXPECT_EQ(calculated_routes.size(), 3);
 
@@ -144,7 +144,7 @@ TEST_F(RoutePlannerTest, GetRoutesRereshOnLocationDbChange)
         return std::vector<std::string>();
     }); 
 
-    auto calculated_routes = route_planner->MockGetRoutes();
+    auto calculated_routes = route_planner->MockSetupRoutes();
     EXPECT_EQ(calculated_routes.size(), 1);
 }
 
@@ -179,7 +179,7 @@ TEST_F(RoutePlannerTest, GetRoutesRereshOnRouteDbChange)
         return std::vector<std::string>();
     }); 
 
-    auto calculated_routes = route_planner->MockGetRoutes();
+    auto calculated_routes = route_planner->MockSetupRoutes();
     EXPECT_EQ(calculated_routes.size(), 1);
 }
 
@@ -209,11 +209,8 @@ TEST_F(RoutePlannerTest, GetRoutesNoDbChange)
 
     //Only interested in checking the route has not been recalculated
     EXPECT_CALL(*mock_route_db, GetRoutes(testing::_))
-    .Times(0)
-    .WillOnce([](const std::string start_location) {
-        return std::vector<std::string>();
-    }); 
+    .Times(0); 
 
-    auto calculated_routes = route_planner->MockGetRoutes();
+    auto calculated_routes = route_planner->MockSetupRoutes();
     EXPECT_EQ(calculated_routes.size(), 1);
 }

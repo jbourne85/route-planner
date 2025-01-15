@@ -15,9 +15,9 @@ class RoutePlanner {
     /// @brief Disable copying of this class
     RoutePlanner(const RoutePlanner& other) {};
 protected:
-    /// @brief This should use the Location/Route databases to calculate all the destinations from a start location
+    /// @brief This should use the Location/Route databases to calculate all the destinations from each start location
     /// @return A list of locations with all the end destinations for each location set
-    virtual std::vector<Location* const> GetRoutes() const;
+    virtual std::vector<Location* const> SetupRoutes() const;
 public:
 
     /// @brief This is the class constructor
@@ -25,9 +25,9 @@ public:
     /// @param route_db A unique pointer for the route database
     RoutePlanner(std::shared_ptr<ILocationDatabase> location_db, std::shared_ptr<IRouteDatabase> route_db);
 
-    /// @brief This should get a list of all the locations avaliable to route between
+    /// @brief This should get a list of all the location names avaliable to route between
     /// @return The list of locations avaliable
-    std::vector<std::string> GetLocations() const;
+    std::vector<std::string> GetLocationNames() const;
 
     /// @brief This gets the cost to travle between two locations
     /// @param start This is the start location
