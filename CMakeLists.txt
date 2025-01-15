@@ -16,6 +16,7 @@ set(ROUTE_SOURCES
     "${ROUTE_PLANNER_SRC_ROOT}/route/Location.cpp"
     "${ROUTE_PLANNER_SRC_ROOT}/route/FileLocationDatabase.cpp"
     "${ROUTE_PLANNER_SRC_ROOT}/route/FileRouteDatabase.cpp"
+    "${ROUTE_PLANNER_SRC_ROOT}/route/RoutePlanner.cpp"
 )
 
 enable_testing()
