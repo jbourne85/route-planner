@@ -114,7 +114,7 @@ TEST_F(RoutePlannerTest, GetRoutesSuccess)
 }
 
 /// @brief Test case for RoutePlanner::GetRoutes() in the success case for when the location database changes
-TEST_F(RoutePlannerTest, GetRoutesRereshOnLocationDbChange)
+TEST_F(RoutePlannerTest, TestGetRoutesRereshOnLocationDbChange)
 {   
     //setup the Load calls
     EXPECT_CALL(*mock_location_db, Load())
@@ -149,7 +149,7 @@ TEST_F(RoutePlannerTest, GetRoutesRereshOnLocationDbChange)
 }
 
 /// @brief Test case for RoutePlanner::GetRoutes() in the success case for when the route database changes
-TEST_F(RoutePlannerTest, GetRoutesRereshOnRouteDbChange)
+TEST_F(RoutePlannerTest, TestGetRoutesRereshOnRouteDbChange)
 {   
     //setup the Load calls
     EXPECT_CALL(*mock_location_db, Load())
@@ -184,7 +184,7 @@ TEST_F(RoutePlannerTest, GetRoutesRereshOnRouteDbChange)
 }
 
 /// @brief Test case for RoutePlanner::GetRoutes() in the success case for when beither db has changed
-TEST_F(RoutePlannerTest, GetRoutesNoDbChange)
+TEST_F(RoutePlannerTest, TestGetRoutesNoDbChange)
 {   
     //setup the Load calls
     EXPECT_CALL(*mock_location_db, Load())
@@ -215,7 +215,8 @@ TEST_F(RoutePlannerTest, GetRoutesNoDbChange)
     EXPECT_EQ(calculated_routes.size(), 1);
 }
 
-TEST_F(RoutePlannerTest, GetLocations)
+/// @brief Test case for RoutePlanner::GetLocationNames() in the success case for when there are locations avaliable
+TEST_F(RoutePlannerTest, TestGetLocationNames)
 {   
     //Setup the locations
     Location london("London", 5);
