@@ -214,3 +214,26 @@ TEST_F(RoutePlannerTest, GetRoutesNoDbChange)
     auto calculated_routes = route_planner->MockSetupRoutes();
     EXPECT_EQ(calculated_routes.size(), 1);
 }
+
+TEST_F(RoutePlannerTest, GetLocations)
+{   
+    //Setup the locations
+    Location london("London", 5);
+    Location glasgow("Glasgow", 3);
+    Location brighton("Brighton", 1);
+
+    std::vector<Location* const> locations = {&london, &glasgow, &brighton};
+
+    EXPECT_CALL(*route_planner, SetupRoutes())
+    .Times(1)
+    .WillOnce([locations]() {
+        return locations;
+    }); 
+
+    auto location_names = route_planner->GetLocationNames();
+
+    EXPECT_EQ(location_names.size(), 3);
+    EXPECT_EQ(location_names[0], "London");
+    EXPECT_EQ(location_names[1], "Glasgow");
+    EXPECT_EQ(location_names[2], "Brighton");
+}
