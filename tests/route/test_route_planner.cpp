@@ -11,10 +11,10 @@ class MockRoutePlanner : public RoutePlanner {
 public:
     MockRoutePlanner(std::shared_ptr<ILocationDatabase> location_db, std::shared_ptr<IRouteDatabase> route_db) : RoutePlanner(location_db, route_db) {}
     
-    MOCK_METHOD(std::vector<Location* const>, SetupRoutes, (), (override, const));
+    MOCK_METHOD(const std::vector<Location*>, SetupRoutes, (), (override, const));
 
     /// @brief Adapter method to call RoutePlanner::getRoutes from the mock
-    std::vector<Location* const> MockSetupRoutes() {
+    const std::vector<Location*> MockSetupRoutes() {
         return RoutePlanner::SetupRoutes();
     }
 };
@@ -23,7 +23,7 @@ public:
 class MockLocationDatabase : public ILocationDatabase {
 public:
     MOCK_METHOD(bool, Load,(), (override));
-    MOCK_METHOD(std::vector<Location* const>, GetLocations,(), (override));
+    MOCK_METHOD(const std::vector<Location*>, GetLocations,(), (override, const));
     MOCK_METHOD(Location* const, GetLocation,(std::string location_name), (override, const)); 
 };
 
@@ -70,7 +70,7 @@ TEST_F(RoutePlannerTest, GetRoutesSuccess)
     Location glasgow("Glasgow", 3);
     Location brighton("Brighton", 1);
 
-    std::vector<Location* const> locations = {&london, &glasgow, &brighton};
+    const std::vector<Location*> locations = {&london, &glasgow, &brighton};
 
     EXPECT_CALL(*mock_location_db, GetLocations()).WillOnce([locations]() {
         return locations;
@@ -128,7 +128,7 @@ TEST_F(RoutePlannerTest, TestGetRoutesRereshOnLocationDbChange)
     });
 
     Location london("London", 5);
-    std::vector<Location* const> locations = {&london};
+    const std::vector<Location*> locations = {&london};
 
     //Just assert that the locations are fetched
     EXPECT_CALL(*mock_location_db, GetLocations())
@@ -163,7 +163,7 @@ TEST_F(RoutePlannerTest, TestGetRoutesRereshOnRouteDbChange)
     });
 
     Location london("London", 5);
-    std::vector<Location* const> locations = {&london};
+    const std::vector<Location*> locations = {&london};
 
     //Just assert that the locations are fetched
     EXPECT_CALL(*mock_location_db, GetLocations())
@@ -198,7 +198,7 @@ TEST_F(RoutePlannerTest, TestGetRoutesNoDbChange)
     });
 
     Location london("London", 5);
-    std::vector<Location* const> locations = {&london};
+    const std::vector<Location*> locations = {&london};
 
     //Just assert that the locations are fetched
     EXPECT_CALL(*mock_location_db, GetLocations())
@@ -223,7 +223,7 @@ TEST_F(RoutePlannerTest, TestGetLocationNames)
     Location glasgow("Glasgow", 3);
     Location brighton("Brighton", 1);
 
-    std::vector<Location* const> locations = {&london, &glasgow, &brighton};
+    const std::vector<Location*> locations = {&london, &glasgow, &brighton};
 
     EXPECT_CALL(*route_planner, SetupRoutes())
     .Times(1)

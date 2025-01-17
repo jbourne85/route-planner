@@ -17,7 +17,7 @@ class RoutePlanner {
 protected:
     /// @brief This should use the Location/Route databases to calculate all the destinations from each start location
     /// @return A list of locations with all the end destinations for each location set
-    virtual std::vector<Location* const> SetupRoutes() const;
+    virtual const std::vector<Location*> SetupRoutes() const;
 public:
 
     /// @brief This is the class constructor

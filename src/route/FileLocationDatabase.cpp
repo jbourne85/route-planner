@@ -18,20 +18,20 @@ FileLocationDatabase::~FileLocationDatabase() {
     DeleteLocations(m_location_list);
 }
 
-void FileLocationDatabase::DeleteLocations(std::vector<Location* const>& locations) {
-    std::for_each (m_location_list.begin(), m_location_list.end(), [this](Location* const location) -> void {
+void FileLocationDatabase::DeleteLocations(std::vector<Location*>& locations) {
+    std::for_each (m_location_list.begin(), m_location_list.end(), [this](Location* location) -> void {
         delete location;
     });
     locations.clear();
 }
 
-void FileLocationDatabase::AddLocation(Location* const location) {
+void FileLocationDatabase::AddLocation(Location* location) {
     m_location_list.push_back(location);
     m_location_map.insert(std::make_pair(location->Name(), location));
 }
 
-std::vector<Location* const> FileLocationDatabase::GetLocationsOnDisk() {
-    std::vector<Location* const> locations_on_disk;
+std::vector<Location*> FileLocationDatabase::GetLocationsOnDisk() {
+    std::vector<Location*> locations_on_disk;
     std::ifstream file(m_database_file);
     if (!file.is_open()) {
         std::cerr << "Error: Could not open the database file " << m_database_file << std::endl;
@@ -87,14 +87,14 @@ bool FileLocationDatabase::Load() {
     m_location_map.clear();    
 
     // Re-load with the new locations from disk
-    std::for_each (locations_on_disk.begin(), locations_on_disk.end(), [this](Location* const location) -> void {
+    std::for_each (locations_on_disk.begin(), locations_on_disk.end(), [this](Location* location) -> void {
         AddLocation(location);
     });
 
     return true;
 }
 
-std::vector<Location* const> FileLocationDatabase::GetLocations() {
+const std::vector<Location*> FileLocationDatabase::GetLocations() const {
     return m_location_list;
 }
 

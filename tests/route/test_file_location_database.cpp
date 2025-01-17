@@ -13,22 +13,22 @@ public:
     MockFileLocationDatabase() : FileLocationDatabase("test_data.csv") {}
     MockFileLocationDatabase(const std::string location_file) : FileLocationDatabase(location_file) {}
     
-    MOCK_METHOD(void, DeleteLocations, (std::vector<Location* const>&), (override));
-    MOCK_METHOD(std::vector<Location* const>, GetLocationsOnDisk, (), (override));
+    MOCK_METHOD(void, DeleteLocations, (std::vector<Location*>&), (override));
+    MOCK_METHOD(std::vector<Location*>, GetLocationsOnDisk, (), (override));
     MOCK_METHOD(void, AddLocation, (Location* const), (override));
 
     /// @brief Adapter method to call FileLocationDatabase::GetLocationsOnDisk from the mock
-    std::vector<Location* const> RealGetLocationsOnDisk() {
+    const std::vector<Location*> RealGetLocationsOnDisk() {
         return FileLocationDatabase::GetLocationsOnDisk();
     }
 
     /// @brief Adapter method to call FileLocationDatabase::DeleteLocations from the mock
-    void RealDeleteLocations(std::vector<Location* const>& locations) {
+    void RealDeleteLocations(std::vector<Location*>& locations) {
         FileLocationDatabase::DeleteLocations(locations);
     }
 
     /// @brief Adapter method to call FileLocationDatabase::AddLocation from the mock
-    void RealAddLocation(Location* const location) {
+    void RealAddLocation(Location* location) {
         FileLocationDatabase::AddLocation(location);
     }
 
@@ -36,7 +36,7 @@ public:
     /// @param locations the list of locations to search
     /// @param name The name of the location to find
     /// @return The location on success, nullptr on failure
-    Location* const MockGetLocationByName(std::vector<Location* const> locations, std::string name) {
+    Location* const MockGetLocationByName(const std::vector<Location*> locations, std::string name) {
         std::vector<Location* const> results;
         std::for_each (locations.begin(), locations.end(), [this, &results, name](Location* const location) mutable {
             if (location->Name() == name) {
@@ -64,7 +64,7 @@ TEST(AddTest, TestMockGetLocationByName)
     Location glasgow("Glasgow", 3);
     Location brighton("Brighton", 1);
 
-    std::vector<Location* const> locations = {&london, &glasgow, &brighton};
+    const std::vector<Location*> locations = {&london, &glasgow, &brighton};
 
     // Check finding each of the values, and they are the correct pointer
     EXPECT_EQ(&london, test_db.MockGetLocationByName(locations, "London"));
@@ -121,7 +121,7 @@ TEST(AddTest, TestLocationsOnDiskErrorWhileParsing)
     const std::string test_data_file = MockFileLocationDatabase::GetDataPath("test_load_bad_data.csv");
     MockFileLocationDatabase test_db(test_data_file);
 
-    EXPECT_CALL(test_db, DeleteLocations(testing::_)).Times(1).WillOnce([&test_db](std::vector<Location* const>& locations){
+    EXPECT_CALL(test_db, DeleteLocations(testing::_)).Times(1).WillOnce([&test_db](std::vector<Location*>& locations){
         test_db.RealDeleteLocations(locations);
     }); 
 
@@ -139,13 +139,13 @@ TEST(AddTest, TestLocationsLoadSuccess)
     Location glasgow("Glasgow", 3);
     Location brighton("Brighton", 1);
 
-    std::vector<Location* const> locations = {&london, &glasgow, &brighton};
+    const std::vector<Location*> locations = {&london, &glasgow, &brighton};
 
     EXPECT_CALL(test_db, GetLocationsOnDisk()).WillOnce([locations](){
         return locations;
     }); 
 
-    EXPECT_CALL(test_db, DeleteLocations(testing::_)).WillOnce([](std::vector<Location* const>& locations) {
+    EXPECT_CALL(test_db, DeleteLocations(testing::_)).WillOnce([](const std::vector<Location*>& locations) {
         EXPECT_EQ(0, locations.size());
     }); 
 
@@ -171,7 +171,7 @@ TEST(AddTest, TestLocationsLoadFailed)
     MockFileLocationDatabase test_db;
 
     EXPECT_CALL(test_db, GetLocationsOnDisk()).WillOnce([](){
-        return std::vector<Location* const>();
+        return std::vector<Location*>();
     }); 
 
     EXPECT_CALL(test_db, DeleteLocations(testing::_)).Times(0);
