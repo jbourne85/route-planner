@@ -8,6 +8,7 @@ namespace messages {
 const unsigned int MSG_LOCATIONS_REQUEST_ID = 103;
 const unsigned int MSG_LOCATIONS_RESPONSE_ID = 104;
 const size_t MSG_LOCATIONS_MAX_CHARS = 100;
+const char MSG_LOCATIONS_SEP_CHAR = ';';
 
 /// @brief This is the low level Locations Request Message, it used to request the complete list
 ///        of locations avaliable in the db
@@ -32,22 +33,29 @@ struct MsgLocationsResponse : MsgHeader {
     sizeof(MsgLocationsResponse)), 
     char_count(0), 
     is_paginated(false)
-    {}
+    {
+        memset(locations, ' ', MSG_LOCATIONS_MAX_CHARS);
+    }
 
     /// @brief This will add a string representation of a location to the message
     /// @param location_name This is the string location name to add
     /// @return True if the location was added to the message, false if not with is_paginated set to true
     bool AddLocation(std::string& location_name) {
-        size_t new_char_count = char_count + location_name.size() + 1;
+        size_t new_char_count = char_count + location_name.size();
         if (new_char_count < MSG_LOCATIONS_MAX_CHARS) {
             std::memcpy(&locations[char_count], location_name.c_str(), location_name.size());
-            locations[location_name.size() + 1] = '\n';
+            locations[new_char_count] = MSG_LOCATIONS_SEP_CHAR;
+            char_count = ++new_char_count;
             return true;
         }
         else {
             is_paginated = true;
             return false;
         }
+    }
+
+    std::string GetLocations() {
+        return std::string(locations, char_count);
     }
 };
 
