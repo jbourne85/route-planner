@@ -54,8 +54,22 @@ struct MsgLocationsResponse : MsgHeader {
         }
     }
 
-    std::string GetLocations() {
-        return std::string(locations, char_count);
+    /// @brief This will get the locations the message contains as a list of strings
+    /// @return The list of locations
+    const std::vector<std::string> GetLocations() {
+        std::string temp_str(locations, char_count);
+        std::vector<std::string> location_list;
+
+        size_t pos = 0;
+        std::string token;
+        while((pos = temp_str.find(MSG_LOCATIONS_SEP_CHAR)) != std::string::npos) {
+            token = temp_str.substr(0, pos);
+            location_list.push_back(token);
+            temp_str.erase(0, pos + sizeof(MSG_LOCATIONS_SEP_CHAR));
+        }
+        location_list.push_back(temp_str);
+
+        return location_list;
     }
 };
 

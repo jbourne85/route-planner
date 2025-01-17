@@ -31,38 +31,51 @@ TEST(AddTest, MsgLocationResponseAddLocations)
 {
     MsgLocationsResponse locations_response;
     
-    std::string location = "abcdefghijklmno"; //string of 15 length, in addition to the \n char it will fail on the 7th add
+    //Add strings of 15 length, in addition to the \n char it will fail on the 7th add
 
+    std::string location = "c19ecpm2lq98vj9";
     EXPECT_TRUE(locations_response.AddLocation(location));
     EXPECT_EQ(locations_response.char_count, 16);
     EXPECT_FALSE(locations_response.is_paginated);
 
+    location = "jhh0cbadeifukpk";
     EXPECT_TRUE(locations_response.AddLocation(location));
     EXPECT_EQ(locations_response.char_count, 32);
     EXPECT_FALSE(locations_response.is_paginated);
 
+    location = "zdjubir1rz796oh";
     EXPECT_TRUE(locations_response.AddLocation(location));
     EXPECT_EQ(locations_response.char_count, 48);
     EXPECT_FALSE(locations_response.is_paginated);
 
+    location = "uhvik04r2ippd1d";
     EXPECT_TRUE(locations_response.AddLocation(location));
     EXPECT_EQ(locations_response.char_count, 64);
     EXPECT_FALSE(locations_response.is_paginated);
 
+    location = "c7n845q7j9c7odz";
     EXPECT_TRUE(locations_response.AddLocation(location));
     EXPECT_EQ(locations_response.char_count, 80);
     EXPECT_FALSE(locations_response.is_paginated);
-
+    
+    location = "bhr472bpw4d0w89";
     EXPECT_TRUE(locations_response.AddLocation(location));
     EXPECT_EQ(locations_response.char_count, 96);
     EXPECT_FALSE(locations_response.is_paginated);
 
     //the size will remain unchanged and the pagnation will be set
+    location = "rlo9nx1gc08vuhg";
     EXPECT_FALSE(locations_response.AddLocation(location));
     EXPECT_EQ(locations_response.char_count, 96);
     EXPECT_TRUE(locations_response.is_paginated);
 
-    //check the value of the string buffer
-    EXPECT_EQ(locations_response.GetLocations(), "abcdefghijklmno;abcdefghijklmno;abcdefghijklmno;abcdefghijklmno;abcdefghijklmno;abcdefghijklmno;");
+    //check the value of the locations list
+    auto loocations_list = locations_response.GetLocations();
+    EXPECT_EQ(loocations_list[0], "c19ecpm2lq98vj9");
+    EXPECT_EQ(loocations_list[1], "jhh0cbadeifukpk");
+    EXPECT_EQ(loocations_list[2], "zdjubir1rz796oh");
+    EXPECT_EQ(loocations_list[3], "uhvik04r2ippd1d");
+    EXPECT_EQ(loocations_list[4], "c7n845q7j9c7odz");
+    EXPECT_EQ(loocations_list[5], "bhr472bpw4d0w89");
 }
 
