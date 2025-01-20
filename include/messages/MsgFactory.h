@@ -3,6 +3,7 @@
 
 #include "messages/MsgHeader.h"
 #include "messages/MsgStatus.h"
+#include "messages/MsgLocations.h"
 
 namespace messages {
 

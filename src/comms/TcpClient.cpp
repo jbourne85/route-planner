@@ -44,15 +44,16 @@ void TcpClient::Send(MsgHeader::MsgPointer msg, MsgHeader::MsgHandler msg_handle
             m_session = std::make_unique<TcpSession<tcp::socket>>(*m_socket, msg_factory);
         }
 
-        if(m_session->SendMsg(msg)) 
-        {
+        if(m_session->SendMsg(msg)) {
             auto msg_received = m_session->WaitForMsg();
             auto msg_response = msg_handler(msg_received);
 
-            if (nullptr != msg_response)
-            {
+            if (msg_response) {
                 Send(msg_response, msg_handler, msg_factory);
             } 
+            else {
+                std::cout << "Session ended" << std::endl;
+            }
         }
     }
 }

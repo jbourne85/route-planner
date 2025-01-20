@@ -12,15 +12,26 @@ MsgHeader::MsgPointer client_handler(MsgHeader::MsgPointer msg)
     std::cout << "Client Handler." << msg->Id() <<std::endl;
     
     MsgFactory msg_factory; 
-    if (msg->Id() == messages::MSG_STATUS_RESPONSE_ID)
-    {
-        std::cout << "Received Status Response Msg. datestring=" << msg->DateString() << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        std::cout << "Sending Status Request Msg." << std::endl;
-        return msg_factory.Create(messages::MSG_STATUS_REQUEST_ID);
+    if (msg->Id() == messages::MSG_STATUS_RESPONSE_ID) {
+        std::cout << "Received Status Response Msg. datestring=" << msg->DateString() << " Server is Up!" << std::endl;
+        std::cout << "Asking for Locations List." << std::endl;
+        return msg_factory.Create(messages::MSG_LOCATIONS_REQUEST_ID);
     }
-    else
-    {
+    else if (msg->Id() == messages::MSG_LOCATIONS_RESPONSE_ID) {
+        std::cout << "Received Locations Response Msg." << std::endl;
+        
+        auto locations_response = MsgHeader::GetDerivedType<messages::MsgLocationsResponse>(msg);
+        const std::vector<std::string> locations = locations_response->GetLocations();
+        
+        std::for_each(locations.begin(), locations.end(), [](std::string location) -> void {
+            std::cout << "Location: " << location << std::endl;
+        });
+
+        if (locations_response->GetData()->is_paginated) {
+            std::cout << "More Data Avaliabe." << std::endl;
+        }
+    }
+    else {
         std::cout << "Unknown response message" << std::endl;
     }
     return MsgHeader::MsgPointer(nullptr);
@@ -38,8 +49,6 @@ int main(int argc, char* argv[])
 
     const std::string server_address(argv[1]);
     const unsigned int port_num(std::stoi(argv[2]));
-    // const std::string server_address("127.0.0.1");
-    // const unsigned int port_num(46);
 
     try
     {

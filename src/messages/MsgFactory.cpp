@@ -1,8 +1,6 @@
 #include <boost/asio.hpp>
 #include "messages/MsgFactory.h"
 #include "messages/MsgHeader.h"
-#include "messages/MsgLocations.h"
-#include "messages/MsgStatus.h"
 
 namespace messages {
 
