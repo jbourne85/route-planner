@@ -5,13 +5,14 @@
 #include "messages/MsgHeader.h"
 
 using messages::MsgHeader;
+using messages::MsgFactory;
 
 MsgHeader::MsgPointer server_handler(MsgHeader::MsgPointer msg)
 {
-    messages::MsgFactory msg_factory;
-    if (msg->id == messages::MSG_STATUS_REQUEST_ID)
+    MsgFactory msg_factory;
+    if (msg->Id() == messages::MSG_STATUS_REQUEST_ID)
     {   
-        std::cout << "Received Status Request Msg. timestamp=" << msg->timestamp << std::endl;
+        std::cout << "Received Status Request Msg. timestamp=" << msg->Timestamp() << std::endl;
         auto response_msg = msg_factory.Create(messages::MSG_STATUS_RESPONSE_ID);
         std::cout << "Sending Status Response Msg." << std::endl;
         return response_msg;
@@ -35,10 +36,10 @@ int main(int argc, char* argv[])
 
     const unsigned int port_num(std::stoi(argv[1]));
 
-    try
-    {
+    try {
+        std::shared_ptr<MsgFactory> msg_factory(new MsgFactory);
         comms::TcpServer server(port_num);
-        server.Start(MsgHeader::MsgHandler(server_handler));        
+        server.Start(MsgHeader::MsgHandler(server_handler), msg_factory);        
     }
     catch(const std::exception& e)
     {

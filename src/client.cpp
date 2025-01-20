@@ -5,13 +5,16 @@
 #include "messages/MsgHeader.h"
 
 using messages::MsgHeader;
+using messages::MsgFactory;
 
 MsgHeader::MsgPointer client_handler(MsgHeader::MsgPointer msg)
 {
-    messages::MsgFactory msg_factory; 
-    if (msg->id == messages::MSG_STATUS_RESPONSE_ID)
+    std::cout << "Client Handler." << msg->Id() <<std::endl;
+    
+    MsgFactory msg_factory; 
+    if (msg->Id() == messages::MSG_STATUS_RESPONSE_ID)
     {
-        std::cout << "Received Status Response Msg. timestamp=" << std::ctime(&msg->timestamp) << std::endl;
+        std::cout << "Received Status Response Msg. datestring=" << msg->DateString() << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         std::cout << "Sending Status Request Msg." << std::endl;
         return msg_factory.Create(messages::MSG_STATUS_REQUEST_ID);
@@ -35,15 +38,17 @@ int main(int argc, char* argv[])
 
     const std::string server_address(argv[1]);
     const unsigned int port_num(std::stoi(argv[2]));
+    // const std::string server_address("127.0.0.1");
+    // const unsigned int port_num(46);
 
     try
     {
         comms::TcpClient client;
 
         if (client.StartSession(server_address, port_num)) {
-            messages::MsgFactory msg_factory; 
-            auto msg = msg_factory.Create(messages::MSG_STATUS_REQUEST_ID);
-            client.Send(msg, MsgHeader::MsgHandler(client_handler));
+            std::shared_ptr<MsgFactory> msg_factory(new MsgFactory);
+            auto msg = msg_factory->Create(messages::MSG_STATUS_REQUEST_ID);
+            client.Send(msg, MsgHeader::MsgHandler(client_handler), msg_factory);
         }
     }
     catch(const std::exception& e)

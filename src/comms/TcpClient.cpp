@@ -5,6 +5,7 @@ namespace comms {
 
 using boost::asio::ip::tcp;
 using messages::MsgHeader;
+using messages::MsgFactory;
 
 TcpClient::TcpClient() : 
 m_socket(nullptr),
@@ -33,14 +34,16 @@ bool TcpClient::StartSession(std::string server_address, unsigned int port_num) 
         return false;
     }
 
-    m_session = std::make_unique<TcpSession<tcp::socket>>(*m_socket);
-
     return m_connected;
 }
 
-void TcpClient::Send(MsgHeader::MsgPointer msg, MsgHeader::MsgHandler msg_handler)
+void TcpClient::Send(MsgHeader::MsgPointer msg, MsgHeader::MsgHandler msg_handler, MsgFactory::MsgFactoryPtr msg_factory)
 {
     if (m_connected) {
+        if (!m_session) {
+            m_session = std::make_unique<TcpSession<tcp::socket>>(*m_socket, msg_factory);
+        }
+
         if(m_session->SendMsg(msg)) 
         {
             auto msg_received = m_session->WaitForMsg();
@@ -48,7 +51,7 @@ void TcpClient::Send(MsgHeader::MsgPointer msg, MsgHeader::MsgHandler msg_handle
 
             if (nullptr != msg_response)
             {
-                Send(msg_response, msg_handler);
+                Send(msg_response, msg_handler, msg_factory);
             } 
         }
     }

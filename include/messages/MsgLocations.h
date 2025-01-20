@@ -10,46 +10,48 @@ const unsigned int MSG_LOCATIONS_RESPONSE_ID = 104;
 const size_t MSG_LOCATIONS_MAX_CHARS = 100;
 const char MSG_LOCATIONS_SEP_CHAR = ';';
 
-/// @brief This is the low level Locations Request Message, it used to request the complete list
-///        of locations avaliable in the db
-struct MsgLocationsRequest : MsgHeader {
-    typedef std::shared_ptr<MsgLocationsRequest> MsgPointer; //typedef for a message pointer
-
-    MsgLocationsRequest() : MsgHeader(MSG_LOCATIONS_REQUEST_ID, sizeof(MsgLocationsRequest)){}
+/// @brief This is the Locations request Msg
+class MsgLocationsRequest : public MsgHeader {
+public: 
+    typedef std::shared_ptr<MsgLocationsRequest> MsgPointer;        ///typedef for a derived message pointer
+    MsgLocationsRequest() : MsgHeader(MSG_LOCATIONS_REQUEST_ID) {}
 };
 
-
-/// @brief This is the response message for the list of locations in the db
-struct MsgLocationsResponse : MsgHeader {
+/// @brief This is the Locations response data for the list of locations in the db
+struct MsgLocationsResponseData {
     size_t char_count;                          /// This is the number of chars contained in this message
     char locations[MSG_LOCATIONS_MAX_CHARS];    /// This is a char array containing the list of locations sperated by a \n char
     bool is_paginated;                          /// This signals if there are more locations to be fetched
 
-    typedef std::shared_ptr<MsgLocationsResponse> MsgPointer; //typedef for a message pointer
-    
     /// @brief This is the class contructor
-    MsgLocationsResponse() : 
-    MsgHeader(MSG_LOCATIONS_RESPONSE_ID, 
-    sizeof(MsgLocationsResponse)), 
+    MsgLocationsResponseData() : 
     char_count(0), 
     is_paginated(false)
     {
         memset(locations, ' ', MSG_LOCATIONS_MAX_CHARS);
     }
+};
+
+/// @brief This is the Locations response Msg
+class MsgLocationsResponse : public MsgHeader {
+    MsgLocationsResponseData m_msg;
+public:
+    typedef std::shared_ptr<MsgLocationsResponse> MsgPointer;   ///typedef for a derived message pointer
+    MsgLocationsResponse() : MsgHeader(MSG_LOCATIONS_RESPONSE_ID, sizeof(MsgLocationsResponseData), (char* const)&m_msg), m_msg() {}
 
     /// @brief This will add a string representation of a location to the message
     /// @param location_name This is the string location name to add
     /// @return True if the location was added to the message, false if not with is_paginated set to true
-    bool AddLocation(std::string& location_name) {
-        size_t new_char_count = char_count + location_name.size();
+    bool AddLocation(std::string& location_name) { 
+        size_t new_char_count = m_msg.char_count + location_name.size();
         if (new_char_count < MSG_LOCATIONS_MAX_CHARS) {
-            std::memcpy(&locations[char_count], location_name.c_str(), location_name.size());
-            locations[new_char_count] = MSG_LOCATIONS_SEP_CHAR;
-            char_count = ++new_char_count;
+            std::memcpy(&(m_msg.locations[m_msg.char_count]), location_name.c_str(), location_name.size());
+            m_msg.locations[new_char_count] = MSG_LOCATIONS_SEP_CHAR;
+            m_msg.char_count = ++new_char_count;
             return true;
         }
         else {
-            is_paginated = true;
+            m_msg.is_paginated = true;
             return false;
         }
     }
@@ -57,7 +59,7 @@ struct MsgLocationsResponse : MsgHeader {
     /// @brief This will get the locations the message contains as a list of strings
     /// @return The list of locations
     const std::vector<std::string> GetLocations() {
-        std::string temp_str(locations, char_count);
+        std::string temp_str(m_msg.locations, m_msg.char_count);
         std::vector<std::string> location_list;
 
         size_t pos = 0;
@@ -70,6 +72,12 @@ struct MsgLocationsResponse : MsgHeader {
         location_list.push_back(temp_str);
 
         return location_list;
+    }
+
+    /// @brief This will get a pointer to the underlying data structure
+    /// @return Data structure pointer
+    const MsgLocationsResponseData* const GetData() {
+        return &m_msg;
     }
 };
 

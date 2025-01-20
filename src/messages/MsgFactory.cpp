@@ -10,15 +10,15 @@ MsgHeader::MsgPointer MsgFactory::Create(const unsigned int id) const {
     switch(id)
     {
         case MSG_HEADER_ID:
-            return MsgHeader::MsgPointer(new MsgHeader(MSG_HEADER_ID, MSG_HEADER_SIZE)); 
+            return MsgHeader::MsgPointer(new MsgHeader()); 
         case MSG_STATUS_REQUEST_ID:
-            return MsgHeader::MsgPointer(new MsgStatusRequest()); 
+            return MsgStatusRequest::MsgPointer(new MsgStatusRequest()); 
         case MSG_STATUS_RESPONSE_ID:
-            return MsgHeader::MsgPointer(new MsgStatusResponse()); 
+            return MsgStatusResponse::MsgPointer(new MsgStatusResponse()); 
         case MSG_LOCATIONS_REQUEST_ID:
-            return MsgHeader::MsgPointer(new MsgLocationsRequest());
+            return MsgLocationsRequest::MsgPointer(new MsgLocationsRequest());
         case MSG_LOCATIONS_RESPONSE_ID:
-            return MsgHeader::MsgPointer(new MsgLocationsResponse());
+            return MsgLocationsResponse::MsgPointer(new MsgLocationsResponse());
     }
     return MsgHeader::MsgPointer(nullptr);
 }
@@ -28,7 +28,7 @@ MsgHeader::MsgPointer MsgFactory::Header() const {
 }
 
 size_t MsgFactory::MaxLength() const {
-    return sizeof(MsgLocationsResponse);
+    return sizeof(MsgHeaderData) + sizeof(MsgLocationsResponseData);
 }
 
 }

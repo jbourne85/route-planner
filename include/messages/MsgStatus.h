@@ -8,20 +8,20 @@ namespace messages {
 const unsigned int MSG_STATUS_REQUEST_ID = 101;
 const unsigned int MSG_STATUS_RESPONSE_ID = 102;
 
-/// @brief This is the low level Status Request Message, it used to request that the server is up and 
-///        listning for requests
-struct MsgStatusRequest : MsgHeader {
-    typedef std::shared_ptr<MsgStatusRequest> MsgPointer; //typedef for a message pointer
+/// @brief This is the Status request Msg
+class MsgStatusRequest : public MsgHeader {
+public:
+    typedef std::shared_ptr<MsgStatusRequest> MsgPointer; ///typedef for a derived message pointer
 
-    MsgStatusRequest() : MsgHeader(MSG_STATUS_REQUEST_ID, sizeof(MsgStatusRequest)){}
+    MsgStatusRequest() : MsgHeader(MSG_STATUS_REQUEST_ID) {}
 };
 
+/// @brief This is the Status response Msg
+class MsgStatusResponse : public MsgHeader {
+public:
+    typedef std::shared_ptr<MsgStatusResponse> MsgPointer; ///typedef for a derived message pointer
 
-/// @brief This is the low level Status Response Message, it used to respond when the server is up and running
-struct MsgStatusResponse : MsgHeader {
-    typedef std::shared_ptr<MsgStatusResponse> MsgPointer; //typedef for a message pointer
-
-    MsgStatusResponse() : MsgHeader(MSG_STATUS_RESPONSE_ID, sizeof(MsgStatusResponse)){}
+    MsgStatusResponse() : MsgHeader(MSG_STATUS_RESPONSE_ID) {}
 };
 
 }

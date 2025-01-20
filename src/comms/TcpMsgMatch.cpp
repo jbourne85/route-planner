@@ -22,12 +22,13 @@ namespace comms {
 
 using messages::MsgHeader;
 
-TcpMsgMatch::TcpMsgMatch() : 
+TcpMsgMatch::TcpMsgMatch(messages::MsgFactory::MsgFactoryPtr msg_factory) : 
 m_total_bytes_read(0),
 m_bytes_received(0),
-m_msg_factory(),
-m_msg_header(m_msg_factory.Create(messages::MSG_HEADER_ID)),
-m_msg(nullptr)
+m_msg_factory(msg_factory),
+m_msg_header(m_msg_factory->Create(messages::MSG_HEADER_ID)),
+m_msg(nullptr),
+m_header_length(m_msg_header->Length())
 {}
 
 std::pair<TcpMsgMatch::MsgBufferIterator, bool> TcpMsgMatch::ProcessBuffer(TcpMsgMatch::MsgBufferIterator begin, TcpMsgMatch::MsgBufferIterator end) {
@@ -36,11 +37,11 @@ std::pair<TcpMsgMatch::MsgBufferIterator, bool> TcpMsgMatch::ProcessBuffer(TcpMs
 
     m_buffer.insert(m_buffer.end(), begin, end);
 
-    if (m_total_bytes_read >= m_msg_header->length) {
+    if (m_total_bytes_read >= m_header_length) {
         m_msg_header->Deserialize(m_buffer);
-        m_msg = m_msg_factory.Create(m_msg_header->id);
-    
-        if (m_msg && m_total_bytes_read >= m_msg->length) {
+        m_msg = m_msg_factory->Create(m_msg_header->Id());
+
+        if (m_msg && m_total_bytes_read >= m_msg->Length()) {
             m_msg->Deserialize(m_buffer);
             return std::make_pair(end, true); 
         }

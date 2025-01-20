@@ -14,7 +14,7 @@ template<typename SocketType>
 class TcpSession : public std::enable_shared_from_this<TcpSession<SocketType> > {
 protected:
     SocketType m_socket;
-    messages::MsgFactory m_msg_factory;
+    messages::MsgFactory::MsgFactoryPtr m_msg_factory;
     boost::asio::streambuf m_buffer;
 
     /// @brief This will process the current session based on a received message, it will keep it alive as long as new messages are received
@@ -39,7 +39,7 @@ protected:
 
 public:
 
-    TcpSession(SocketType& socket) : m_socket(std::move(socket))
+    TcpSession(SocketType& socket, messages::MsgFactory::MsgFactoryPtr msg_factory) : m_socket(std::move(socket)), m_msg_factory(msg_factory)
     {}
 
     virtual ~TcpSession()
@@ -52,7 +52,7 @@ public:
     
         auto self(this->shared_from_this());
 
-        TcpMsgMatch::MsgMatchPointer msg_matcher(new TcpMsgMatch);
+        TcpMsgMatch::MsgMatchPointer msg_matcher(new TcpMsgMatch(m_msg_factory));
 
         boost::asio::async_read_until(m_socket, m_buffer, std::bind(&comms::TcpMsgMatch::ProcessBuffer, msg_matcher, _1, _2), 
         [this, self, msg_handler, msg_matcher](boost::system::error_code err, std::size_t bytes) {
@@ -71,20 +71,18 @@ public:
     /// @return A valid MsgHeader::MsgPointer message on success, nullptr on failure
     messages::MsgHeader::MsgPointer WaitForMsg() {
         std::vector<char> buffer;
-        const size_t max_buffer_size = m_msg_factory.MaxLength(); 
+        const size_t max_buffer_size = m_msg_factory->MaxLength(); 
         char temp_buffer[max_buffer_size];
 
         size_t total_bytes_read = 0;
         size_t bytes_received;
 
-        boost::system::error_code err;
+        boost::system::error_code err;        
+        messages::MsgHeader::MsgPointer msg_header = m_msg_factory->Create(messages::MSG_HEADER_ID);
 
-        messages::MsgHeader::MsgPointer msg_header = m_msg_factory.Create(messages::MSG_HEADER_ID);
-
-        while (total_bytes_read < msg_header->length) {
+        while (total_bytes_read < msg_header->Length()) {
             bytes_received = m_socket.read_some(boost::asio::buffer(temp_buffer, max_buffer_size), err);           
             total_bytes_read += bytes_received;        
-
             if (err) {
                 break;
             }
@@ -96,7 +94,7 @@ public:
         messages::MsgHeader::MsgPointer msg = messages::MsgHeader::MsgPointer(nullptr);
 
         if (!err) {
-            msg = m_msg_factory.Create(msg_header->id);
+            msg = m_msg_factory->Create(msg_header->Id());
             if(msg) {
                 msg->Deserialize(buffer);
             }
@@ -140,7 +138,7 @@ public:
         size_t bytes_sent = 0;
 
         if (!err) {
-            bytes_sent = msg->length;
+            bytes_sent = msg->Length();
         }
         else {
             throw std::runtime_error("Error Sending Msg: " + err.message());

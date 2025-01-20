@@ -3,53 +3,102 @@
 
 using namespace messages;
 
+struct MockTestMsgData {
+    char padding[1024];
+
+    MockTestMsgData() {
+        memset(padding, ' ', 1024);
+    }
+
+    void FillPadding(char padding_char) {
+        memset(padding, padding_char, 1024);
+    }
+
+    void ExpectPadding(char padding_char) {
+        for (size_t i = 0 ; i < 1024 ; ++i) {
+            EXPECT_EQ(padding[i], padding_char);
+        }
+    }
+};
+
+class MockTestMsg : public MsgHeader {
+public:
+    MockTestMsgData msg;
+    MockTestMsg(unsigned int id) : MsgHeader(id, sizeof(MockTestMsgData), (char* const)&msg) {}
+};
+
 TEST(AddTest, MsgHeaderConstructor)
 {
     unsigned int id = 100;
-    unsigned int length = sizeof(MsgHeader);
+    size_t length = sizeof(MsgHeader);
 
-    MsgHeader header(id, length);
+    MsgHeader header;
 
-    EXPECT_EQ(header.id, id);
-    EXPECT_EQ(header.length, 32);
+    EXPECT_EQ(header.Id(), id);
+    EXPECT_EQ(header.Length(), 24);
 }
 
 TEST(AddTest, MsgHeaderSerialiseDeserialise)
 {
-    unsigned int id = 100;
-    unsigned int length = sizeof(MsgHeader);
+    unsigned int id = 999;
+    size_t length = sizeof(MsgHeaderData) + sizeof(MockTestMsgData);
 
-    MsgHeader header(id, length);
+    MockTestMsg mock_msg(id);
+    mock_msg.msg.FillPadding('a');
 
     std::vector<char> buffer;
-    header.Serialize(buffer);
+    mock_msg.Serialize(buffer);
     
     EXPECT_EQ(buffer.size(), length);
 
-    MsgHeader empty_header(0, length);
+    MockTestMsg empty_header(0);
+    empty_header.msg.ExpectPadding(' ');
 
     empty_header.Deserialize(buffer);
 
-    EXPECT_EQ(empty_header.id, id);
-    EXPECT_EQ(empty_header.length, length);    
-    EXPECT_EQ(empty_header.timestamp, header.timestamp);
+    EXPECT_EQ(empty_header.Id(), id);
+    EXPECT_EQ(empty_header.Length(), length);    
+    EXPECT_EQ(empty_header.Timestamp(), mock_msg.Timestamp());
+    empty_header.msg.ExpectPadding('a');
 }
 
-TEST(AddTest, MsgHeaderDeserialiseNotEnoughData)
+TEST(AddTest, MsgHeaderDeserialiseNotEnoughDataForHeader)
 {
-    unsigned int id = 100;
-    unsigned int length = sizeof(MsgHeader);
+    unsigned int id = 999;
+    size_t length = sizeof(MsgHeaderData) + sizeof(MockTestMsgData);
 
-    MsgHeader header(id, length);
+    MockTestMsg mock_msg(id);
 
     std::vector<char> buffer(4);   //create an empty buffer of 4 bytes
 
-    MsgHeader empty_header(id, length);
+    MockTestMsg empty_header(0);
+    empty_header.msg.FillPadding('a');
 
-    unsigned int bytes_deserialized = empty_header.Deserialize(buffer);
+    size_t bytes_deserialized = empty_header.Deserialize(buffer);
 
-    EXPECT_EQ(bytes_deserialized, 4);
-    EXPECT_EQ(empty_header.id, 100); 
-    EXPECT_NE(empty_header.length, 0);    
-    EXPECT_NE(empty_header.timestamp, 0);
+    EXPECT_EQ(bytes_deserialized, 0);
+    EXPECT_EQ(empty_header.Id(), 0); 
+    EXPECT_NE(empty_header.Length(), 0);    
+    EXPECT_NE(empty_header.Timestamp(), 0);
+    empty_header.msg.ExpectPadding('a');
+}
+
+TEST(AddTest, MsgHeaderDeserialiseNotEnoughDataForBody)
+{
+    unsigned int id = 999;
+    size_t length = sizeof(MsgHeaderData) + sizeof(MockTestMsgData);
+
+    MockTestMsg mock_msg(id);
+
+    std::vector<char> buffer(sizeof(MsgHeaderData) + 4);   //create an empty buffer of 4 bytes bigger than the header
+
+    MockTestMsg empty_header(0);
+
+    size_t bytes_deserialized = empty_header.Deserialize(buffer);
+
+    EXPECT_EQ(bytes_deserialized, 24);
+    EXPECT_EQ(empty_header.Id(), 0); 
+    EXPECT_EQ(empty_header.Length(), 0);    
+    EXPECT_EQ(empty_header.Timestamp(), 0);
+    empty_header.msg.ExpectPadding(' ');
 }

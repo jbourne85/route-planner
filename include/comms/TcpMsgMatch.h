@@ -13,15 +13,16 @@ class TcpMsgMatch {
     size_t m_total_bytes_read;
     size_t m_bytes_received;
     std::vector<char> m_buffer;
-    messages::MsgFactory m_msg_factory;
+    messages::MsgFactory::MsgFactoryPtr m_msg_factory;
     messages::MsgHeader::MsgPointer m_msg_header;
     messages::MsgHeader::MsgPointer m_msg;
+    const size_t m_header_length;
         
 public:
     typedef boost::asio::buffers_iterator<boost::asio::streambuf::const_buffers_type> MsgBufferIterator;
     typedef std::shared_ptr<TcpMsgMatch> MsgMatchPointer;
     
-    TcpMsgMatch();
+    TcpMsgMatch(messages::MsgFactory::MsgFactoryPtr msg_factory);
     
     /// @brief This will check to see if a matching message has been found within two boost::asio::buffers_iterator's. It can be called
     ///        as many times as required until a complete message is found. It is intended to be used with boost::asio::async_read_until

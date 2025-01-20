@@ -20,7 +20,7 @@ public:
 
     /// @brief This will start a new server session to listen fpr connections from a client
     /// @param msg_handler The message handler to call on reception of a message
-    void Start(messages::MsgHeader::MsgHandler msg_handler);
+    void Start(messages::MsgHeader::MsgHandler msg_handler, messages::MsgFactory::MsgFactoryPtr msg_factory);
 };
 
 }

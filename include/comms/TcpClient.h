@@ -24,7 +24,7 @@ public:
     /// @brief This will send a message over the established session
     /// @param msg The message to send
     /// @param msg_handler The message handler to call on reception of the response
-    void Send(messages::MsgHeader::MsgPointer msg, messages::MsgHeader::MsgHandler msg_handler);
+    void Send(messages::MsgHeader::MsgPointer msg, messages::MsgHeader::MsgHandler msg_handler, messages::MsgFactory::MsgFactoryPtr msg_factory);
 };
 
 }
