@@ -1,7 +1,4 @@
 find_package(gtest REQUIRED)
-find_package(Boost REQUIRED)
-include_directories(${Boost_INCLUDE_DIRS})
-
 set(TEST_DATA_DIR ${CMAKE_SOURCE_DIR}/test_data)
 
 add_custom_target(copy_test_data ALL
@@ -15,6 +12,6 @@ target_include_directories(runTests PUBLIC ${PROJECT_SOURCE_DIR}/include ${PROJE
 include_directories(${GTest_INCLUDE_DIR})
 add_dependencies(runTests copy_test_data)
 
-target_link_libraries(runTests GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main pthread)
+target_link_libraries(runTests GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main pthread log4cxx)
 
 add_test(NAME runTests COMMAND runTests)

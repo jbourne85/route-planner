@@ -4,6 +4,11 @@ project(route-planner VERSION 0.1.0 LANGUAGES C CXX)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(ROUTE_PLANNER_SRC_ROOT ${CMAKE_SOURCE_DIR}/src)
 
+find_package(Boost REQUIRED)
+find_package(Threads REQUIRED)
+find_package(log4cxx REQUIRED)
+include_directories(${Boost_INCLUDE_DIRS})
+
 set(MESSAGE_SOURCES 
     "${ROUTE_PLANNER_SRC_ROOT}/messages/MsgFactory.cpp"
 )
