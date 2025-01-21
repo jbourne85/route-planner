@@ -70,6 +70,7 @@ TEST(AddTest, MsgLocationResponseAddLocations)
 
     //check the value of the locations list
     auto loocations_list = locations_response.GetLocations();
+    EXPECT_EQ(loocations_list.size(), 6);
     EXPECT_EQ(loocations_list[0], "c19ecpm2lq98vj9");
     EXPECT_EQ(loocations_list[1], "jhh0cbadeifukpk");
     EXPECT_EQ(loocations_list[2], "zdjubir1rz796oh");

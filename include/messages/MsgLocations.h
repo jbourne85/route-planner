@@ -69,8 +69,6 @@ public:
             location_list.push_back(token);
             temp_str.erase(0, pos + sizeof(MSG_LOCATIONS_SEP_CHAR));
         }
-        location_list.push_back(temp_str);
-
         return location_list;
     }
 
