@@ -10,7 +10,10 @@ m_route_db(route_db)
 }
 
 const std::vector<Location*> RoutePlanner::SetupRoutes() const{
-    if (m_location_db->Load() || m_route_db->Load()) {
+    bool locations_updated = m_location_db->Load();
+    bool routes_updated = m_route_db->Load();
+
+    if (locations_updated || routes_updated) {
         const std::vector<Location*> locations = m_location_db->GetLocations();
 
         std::for_each(locations.begin(), locations.end(), [this](Location* const start_location) -> void {
@@ -23,7 +26,6 @@ const std::vector<Location*> RoutePlanner::SetupRoutes() const{
                 }
             });
         });
-
         return locations;
     }
     else {

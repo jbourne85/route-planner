@@ -1,0 +1,146 @@
+#include <ctime>
+#include <iostream>
+#include <string>
+#include <boost/asio.hpp>
+#include "messages/MsgStatus.h"
+
+using boost::asio::ip::tcp;
+
+class TcpConnection : public std::enable_shared_from_this<TcpConnection>
+{
+    tcp::socket m_socket;
+
+public:
+    typedef std::shared_ptr<TcpConnection> pointer;
+
+    static pointer create(boost::asio::io_context& io_context)
+    {
+        return pointer(new TcpConnection(io_context));
+    }
+
+    tcp::socket& socket()
+    {
+        return m_socket;
+    }
+
+    void send_message(MsgHeader& msg)
+    {
+        std::cout << "Sending msg: " << msg.id << " length: " << msg.length << std::endl;
+        std::vector<char> buffer;
+        msg.serialize(buffer);
+
+        boost::asio::async_write(
+            m_socket, 
+            boost::asio::buffer(buffer),
+            std::bind(
+                &TcpConnection::handle_write, shared_from_this(),
+                boost::asio::placeholders::error,
+                boost::asio::placeholders::bytes_transferred
+            )    
+        );    
+    }
+
+    void start()
+    {
+        const size_t max_buffer_size = 1024;  
+        char temp_buffer[max_buffer_size];
+
+        size_t total_bytes_read = 0;
+        size_t bytes_received;
+
+        MsgHeader header(0, sizeof(MsgHeader));
+        std::cout << sizeof(unsigned int) << std::endl;
+        std::cout << sizeof(unsigned int) << std::endl;
+
+        std::vector<char> buffer;
+
+        // Loop to read data in chunks
+        while (true) {
+            bytes_received = m_socket.read_some(boost::asio::buffer(temp_buffer, max_buffer_size));
+            total_bytes_read += bytes_received;
+
+            // Append the received data to the vector buffer
+            buffer.insert(buffer.end(), temp_buffer, temp_buffer + bytes_received);
+
+            std::cout << "Read " << bytes_received << " bytes, total: " << total_bytes_read << " bytes\n";
+
+            header.deserialize(buffer);
+
+            // Stop reading when we reach a certain condition (e.g., a complete message)
+            // For this example, we'll stop after reading 1024 bytes
+            if (total_bytes_read >= header.length) {
+                break;
+            }
+        }
+
+        if (header.id == MSG_STATUS_REQUEST_ID)
+        {   
+            std::cout << "Status request message received" << std::endl;
+            MsgStatusResponse response;
+            send_message(response);
+        }
+        else
+        {
+            std::cout << "Unknown response message" << std::endl;
+        }
+    }
+
+private:
+    TcpConnection(boost::asio::io_context& io_context) : m_socket(io_context)
+    {
+    }
+
+    void handle_write(const boost::system::error_code& error, size_t bytes_transferred)
+    {
+        std::cout << "Message Sent! bytes: " << bytes_transferred << std::endl;
+    }
+
+};
+
+class TcpServer
+{
+    boost::asio::io_context& m_context;
+    tcp::acceptor m_acceptor;
+
+public:
+    TcpServer(boost::asio::io_context& io_context) : m_context(io_context), m_acceptor(io_context, tcp::endpoint(tcp::v4(), 13))
+    {
+        start_accept();
+    }
+    ~TcpServer()
+    {
+    }
+
+private:
+    void start_accept()
+    {
+        TcpConnection::pointer new_connection = TcpConnection::create(m_context);
+
+        m_acceptor.async_accept(new_connection->socket(), std::bind(&TcpServer::handle_accept, this, new_connection, boost::asio::placeholders::error));
+    }
+
+    void handle_accept(TcpConnection::pointer new_connection, const boost::system::error_code& error)
+    {   
+        std::cout << "Client connected." << std::endl;
+        if (!error)
+        {
+            new_connection->start();
+        }
+        start_accept();
+    }
+};
+
+int main()
+{
+    try
+    {
+        boost::asio::io_context io_context;
+        TcpServer server(io_context);        
+        io_context.run();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+    return 0;
+}

@@ -56,12 +56,12 @@ TEST_F(RoutePlannerTest, GetRoutesSuccess)
 {   
     //setup the Load calls
     EXPECT_CALL(*mock_location_db, Load())
-    .WillRepeatedly([](){
+    .WillOnce([](){
         return true;
     });
 
     EXPECT_CALL(*mock_route_db, Load())
-    .WillRepeatedly([](){
+    .WillOnce([](){
         return true;
     });
 
