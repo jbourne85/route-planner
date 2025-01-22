@@ -1,4 +1,7 @@
 #include <gtest/gtest.h>
+#include <log4cxx/logger.h>
+#include <log4cxx/propertyconfigurator.h>
+#include <log4cxx/helpers/exception.h>
 #include "messages/MsgHeader.h"
 
 using namespace messages;
@@ -27,7 +30,14 @@ public:
     MockTestMsg(unsigned int id) : MsgHeader(id, sizeof(MockTestMsgData), (char* const)&msg) {}
 };
 
-TEST(AddTest, MsgHeaderConstructor)
+class MsgHeaderTest : public ::testing::Test {
+protected:
+    void SetUp() override {
+        log4cxx::PropertyConfigurator::configure("log4cxx.properties");
+    }
+};
+
+TEST_F(MsgHeaderTest, MsgHeaderConstructor)
 {
     unsigned int id = 100;
     size_t length = sizeof(MsgHeader);
@@ -38,7 +48,7 @@ TEST(AddTest, MsgHeaderConstructor)
     EXPECT_EQ(header.Length(), 24);
 }
 
-TEST(AddTest, MsgHeaderSerialiseDeserialise)
+TEST_F(MsgHeaderTest, MsgHeaderSerialiseDeserialise)
 {
     unsigned int id = 999;
     size_t length = sizeof(MsgHeaderData) + sizeof(MockTestMsgData);
@@ -62,7 +72,7 @@ TEST(AddTest, MsgHeaderSerialiseDeserialise)
     empty_header.msg.ExpectPadding('a');
 }
 
-TEST(AddTest, MsgHeaderDeserialiseNotEnoughDataForHeader)
+TEST_F(MsgHeaderTest, MsgHeaderDeserialiseNotEnoughDataForHeader)
 {
     unsigned int id = 999;
     size_t length = sizeof(MsgHeaderData) + sizeof(MockTestMsgData);
@@ -83,7 +93,7 @@ TEST(AddTest, MsgHeaderDeserialiseNotEnoughDataForHeader)
     empty_header.msg.ExpectPadding('a');
 }
 
-TEST(AddTest, MsgHeaderDeserialiseNotEnoughDataForBody)
+TEST_F(MsgHeaderTest, MsgHeaderDeserialiseNotEnoughDataForBody)
 {
     unsigned int id = 999;
     size_t length = sizeof(MsgHeaderData) + sizeof(MockTestMsgData);

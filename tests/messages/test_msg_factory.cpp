@@ -1,4 +1,7 @@
 #include <gtest/gtest.h>
+#include <log4cxx/logger.h>
+#include <log4cxx/propertyconfigurator.h>
+#include <log4cxx/helpers/exception.h>
 #include "messages/MsgFactory.h"
 #include "messages/MsgHeader.h"
 #include "messages/MsgLocations.h"
@@ -9,6 +12,8 @@ using namespace messages;
 class MsgFactoryTest : public ::testing::Test {
 protected:
     void SetUp() override {
+        log4cxx::PropertyConfigurator::configure("log4cxx.properties");
+        
         msg_factory = std::make_unique<MsgFactory>();
     }
 

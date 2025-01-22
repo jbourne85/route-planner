@@ -1,9 +1,19 @@
 #include <gtest/gtest.h>
+#include <log4cxx/logger.h>
+#include <log4cxx/propertyconfigurator.h>
+#include <log4cxx/helpers/exception.h>
 #include "messages/MsgLocations.h"
 
 using namespace messages;
 
-TEST(AddTest, MsgLocationRequestConstructor)
+class MsgLocationsTest : public ::testing::Test {
+protected:
+    void SetUp() override {
+        log4cxx::PropertyConfigurator::configure("log4cxx.properties");
+    }
+};
+
+TEST_F(MsgLocationsTest, MsgLocationRequestConstructor)
 {
     unsigned int id = 103;
     unsigned int length = sizeof(MsgHeaderData);
@@ -14,7 +24,7 @@ TEST(AddTest, MsgLocationRequestConstructor)
     EXPECT_EQ(locations_request.Length(), length);
 }
 
-TEST(AddTest, MsgLocationResponseConstructor)
+TEST_F(MsgLocationsTest, MsgLocationResponseConstructor)
 {
     unsigned int id = 104;
     unsigned int length = sizeof(MsgHeaderData) + sizeof(MsgLocationsResponseData);
@@ -27,7 +37,7 @@ TEST(AddTest, MsgLocationResponseConstructor)
     EXPECT_EQ(locations_response.GetData()->is_paginated, false);
 }
 
-TEST(AddTest, MsgLocationResponseAddLocations)
+TEST_F(MsgLocationsTest, MsgLocationResponseAddLocations)
 {
     MsgLocationsResponse locations_response;
     
