@@ -31,6 +31,8 @@ public:
     m_msg() {
     }
 
+    /// @brief This will set the start location index in the data msg
+    /// @param index This is start location index
     void SetStartLocation(size_t index) {
         m_msg.start_location = index;
     }
