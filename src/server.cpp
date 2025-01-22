@@ -1,5 +1,8 @@
 #include <iostream>
 #include <boost/asio.hpp>
+#include <log4cxx/logger.h>
+#include <log4cxx/propertyconfigurator.h>
+#include <log4cxx/helpers/exception.h>
 #include "comms/TcpServer.h"
 #include "messages/MsgFactory.h"
 #include "messages/MsgHeader.h"
@@ -13,21 +16,26 @@ using route::FileLocationDatabase;
 using route::FileRouteDatabase;
 using route::RoutePlanner;
 
+using namespace log4cxx;
+
 class ServerMsgHandler {
+    static LoggerPtr m_logger;
     route::RoutePlanner* m_route_planner;
 public:
-    ServerMsgHandler(route::RoutePlanner* route_planner) : m_route_planner(route_planner) {}
+    ServerMsgHandler(route::RoutePlanner* route_planner) : 
+    m_route_planner(route_planner)
+    {}
 
     MsgHeader::MsgPointer MsgHandler(MsgHeader::MsgPointer msg) {
         MsgFactory msg_factory;
         if (msg->Id() == messages::MSG_STATUS_REQUEST_ID) {   
-            std::cout << "Received Status Request Msg. timestamp=" << msg->Timestamp() << std::endl;
+            LOG4CXX_INFO(m_logger, "Received Status Request Msg. timestamp=" << msg->DateString());
             auto response_msg = msg_factory.Create(messages::MSG_STATUS_RESPONSE_ID);
-            std::cout << "Sending Status Response Msg." << std::endl;
+            LOG4CXX_INFO(m_logger, "Sending Status Response Msg.");
             return response_msg;
         }
         else if (msg->Id() == messages::MSG_LOCATIONS_REQUEST_ID) {
-            std::cout << "Received Locations Request Msg. timestamp=" << msg->Timestamp() << std::endl;
+            LOG4CXX_INFO(m_logger, "Received Locations Request Msg. timestamp=" << msg->DateString());
             auto response_msg = MsgHeader::GetDerivedType<messages::MsgLocationsResponse>(msg_factory.Create(messages::MSG_LOCATIONS_RESPONSE_ID));
 
             auto locations = m_route_planner->GetLocationNames();
@@ -36,19 +44,23 @@ public:
                 response_msg->AddLocation(location);
             });
 
-            std::cout << "Sending Locations Response Msg." << std::endl;
+            LOG4CXX_INFO(m_logger, "Sending Locations Response Msg.");
             return response_msg;
         }
-        else
-        {
-            std::cout << "Unknown response message" << std::endl;
+        else {
+            LOG4CXX_WARN(m_logger, "Unknown response Msg. id=" << msg->Id());
         }
         return MsgHeader::MsgPointer(nullptr);
     }
 };
 
+log4cxx::LoggerPtr ServerMsgHandler::m_logger(log4cxx::Logger::getLogger("ServerMsgHandler"));
+
 int main(int argc, char* argv[])
 {
+    PropertyConfigurator::configure("log4cxx.properties");
+    LoggerPtr logger = Logger::getLogger("server");
+
     if (argc != 4) {
         std::cout << "Usage:" << std::endl;
         std::cout << "\tserver [PORT NUMBER] [LOCATION DB FILE] [ROUTE DB FILE]" << std::endl;
