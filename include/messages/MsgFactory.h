@@ -1,6 +1,7 @@
 #ifndef MSGFACTORY_H
 #define MSGFACTORY_H
 
+#include <log4cxx/logger.h>
 #include "messages/MsgHeader.h"
 #include "messages/MsgStatus.h"
 #include "messages/MsgLocations.h"
@@ -9,6 +10,7 @@ namespace messages {
 
 /// @brief This class knows how to create Messages
 class MsgFactory {
+    static log4cxx::LoggerPtr m_logger;
 public:
     typedef std::shared_ptr<MsgFactory> MsgFactoryPtr; /// Typedef for a MsgFactory pointer type
 

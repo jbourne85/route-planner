@@ -4,6 +4,8 @@
 
 namespace messages {
 
+log4cxx::LoggerPtr MsgFactory::m_logger(log4cxx::Logger::getLogger("MsgFactory"));
+
 MsgHeader::MsgPointer MsgFactory::Create(const unsigned int id) const {
     switch(id)
     {
@@ -18,6 +20,7 @@ MsgHeader::MsgPointer MsgFactory::Create(const unsigned int id) const {
         case MSG_LOCATIONS_RESPONSE_ID:
             return MsgLocationsResponse::MsgPointer(new MsgLocationsResponse());
     }
+    LOG4CXX_WARN(m_logger, "Unkown msg id=" << id);
     return MsgHeader::MsgPointer(nullptr);
 }
 
