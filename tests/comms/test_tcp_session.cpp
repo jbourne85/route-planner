@@ -2,6 +2,9 @@
 #include <boost/bind/bind.hpp>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <log4cxx/logger.h>
+#include <log4cxx/propertyconfigurator.h>
+#include <log4cxx/helpers/exception.h>
 #include "comms/TcpSession.h"
 #include "messages/MsgFactory.h"
 
@@ -60,6 +63,8 @@ public:
 class TcpSessionTest : public ::testing::Test {
 protected:
     void SetUp() override {
+        log4cxx::PropertyConfigurator::configure("log4cxx.properties");
+
         msg_factory = std::make_shared<MockTcpMessageFactory>();
         mock_socket = std::make_shared<MockTcpSocket>();      
 

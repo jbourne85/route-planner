@@ -1,5 +1,8 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <log4cxx/logger.h>
+#include <log4cxx/propertyconfigurator.h>
+#include <log4cxx/helpers/exception.h>
 #include "comms/TcpMsgMatch.h"
 #include "messages/MsgFactory.h"
 #include "messages/MsgHeader.h"
@@ -10,6 +13,8 @@ using namespace messages;
 class TcpMsgMatchTest : public ::testing::Test {
 protected:
     void SetUp() override {
+        log4cxx::PropertyConfigurator::configure("log4cxx.properties");
+
         msg_factory = std::make_shared<MsgFactory>();
         tcp_msg_match = std::make_unique<TcpMsgMatch>(msg_factory);        
     }
