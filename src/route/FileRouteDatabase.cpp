@@ -21,14 +21,16 @@ std::unordered_map<std::string, std::vector<std::string>> FileRouteDatabase::Get
         return routes_on_disk;
     }
 
-    bool error;
+    bool error = false;
     std::string line;
     
-    while (std::getline(file, line) && !error) { 
-        std::stringstream ss(line);   
+    while (file.good() && !error) {
+        std::getline(file, line);
+        std::stringstream ss(boost::trim_copy(line));   
         std::string value;
         std::vector<std::string> route_data; 
         
+        if (ss.str().length()) {
         while (std::getline(ss, value, ',')) { 
             route_data.push_back(boost::trim_copy(value));
         }
@@ -44,6 +46,7 @@ std::unordered_map<std::string, std::vector<std::string>> FileRouteDatabase::Get
         else {
             route->second.insert(route->second.end(), destinations.begin(), destinations.end());
         }       
+    }
     }
 
     file.close(); 

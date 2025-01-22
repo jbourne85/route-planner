@@ -38,19 +38,21 @@ std::vector<Location*> FileLocationDatabase::GetLocationsOnDisk() {
         return locations_on_disk;
     }
 
-    bool error;
+    bool error = false;
     std::string line;
 
     const unsigned int name_i = 0;
     const unsigned int cost_i = 1;
     
-    while (std::getline(file, line) && !error) { 
-        std::stringstream ss(line);   
+    while (file.good() && !error) {
+        std::getline(file, line);
+        std::stringstream ss(boost::trim_copy(line));   
         std::string value;
         std::vector<std::string> location_data; 
         
+        if (ss.str().length()) {
         while (std::getline(ss, value, ',')) { 
-            location_data.push_back(value);
+                location_data.push_back(boost::trim_copy(value));
         }
 
         try {
@@ -66,6 +68,7 @@ std::vector<Location*> FileLocationDatabase::GetLocationsOnDisk() {
             std::cerr << "Error: Assuming the database file is malformed" << std::endl;
             DeleteLocations(locations_on_disk);
             error = true;
+            }
         }
     }
 
