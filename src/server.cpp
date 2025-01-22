@@ -10,37 +10,36 @@
 #include "route/FileRouteDatabase.h"
 #include "route/RoutePlanner.h"
 
-using messages::MsgHeader;
-using messages::MsgFactory;
-using route::FileLocationDatabase;
-using route::FileRouteDatabase;
-using route::RoutePlanner;
-
 using namespace log4cxx;
+using namespace messages;
+using namespace route;
 
 class ServerMsgHandler {
     static LoggerPtr m_logger;
     route::RoutePlanner* m_route_planner;
+    MsgFactory m_msg_factory;
 public:
     ServerMsgHandler(route::RoutePlanner* route_planner) : 
     m_route_planner(route_planner)
     {}
 
-    MsgHeader::MsgPointer MsgHandler(MsgHeader::MsgPointer msg) {
-        MsgFactory msg_factory;
-        if (msg->Id() == messages::MSG_STATUS_REQUEST_ID) {   
-            LOG4CXX_INFO(m_logger, "Received Status Request Msg. timestamp=" << msg->DateString());
-            auto response_msg = msg_factory.Create(messages::MSG_STATUS_RESPONSE_ID);
-            LOG4CXX_INFO(m_logger, "Sending Status Response Msg.");
-            return response_msg;
-        }
-        else if (msg->Id() == messages::MSG_LOCATIONS_REQUEST_ID) {
-            LOG4CXX_INFO(m_logger, "Received Locations Request Msg. timestamp=" << msg->DateString());
-            auto response_msg = MsgHeader::GetDerivedType<messages::MsgLocationsResponse>(msg_factory.Create(messages::MSG_LOCATIONS_RESPONSE_ID));
+    MsgHeader::MsgPointer HandleStatusRequestMsg(MsgStatusRequest::MsgPointer status_request) {
+        LOG4CXX_INFO(m_logger, "Received Status Request Msg. timestamp=" << status_request->DateString());
+        LOG4CXX_INFO(m_logger, "Sending Status Response Msg.");
 
-            auto locations = m_route_planner->GetLocationNames();
+        return m_msg_factory.Create(MSG_STATUS_RESPONSE_ID);
+    }
 
-            std::for_each(locations.begin(), locations.end(), [&response_msg](std::string location) -> void {
+    MsgHeader::MsgPointer HandleLocationsRequestMsg(MsgLocationsRequest::MsgPointer locations_request) {
+        LOG4CXX_INFO(m_logger, "Received Locations Request Msg. timestamp=" << locations_request->DateString());
+
+        auto response_msg = MsgHeader::GetDerivedType<MsgLocationsResponse>(m_msg_factory.Create(MSG_LOCATIONS_RESPONSE_ID));
+
+        auto locations = m_route_planner->GetLocationNames();
+        size_t start_i = locations_request->GetData()->start_location;
+
+        if (start_i < locations.size()) {
+            std::for_each(locations.begin() + start_i, locations.end(), [&response_msg](std::string location) -> void {
                 response_msg->AddLocation(location);
             });
 
@@ -48,9 +47,23 @@ public:
             return response_msg;
         }
         else {
+            LOG4CXX_ERROR(m_logger, "Unexpected start_location in Locations Request msg. start_location=" << start_i);
+        }
+        return nullptr;
+    }
+
+    MsgHeader::MsgPointer MsgHandler(MsgHeader::MsgPointer msg) {
+        
+        if (msg->Id() == MSG_STATUS_REQUEST_ID) {   
+            return HandleStatusRequestMsg(MsgHeader::GetDerivedType<MsgStatusRequest>(msg));
+        }
+        else if (msg->Id() == MSG_LOCATIONS_REQUEST_ID) {
+            return HandleLocationsRequestMsg(MsgHeader::GetDerivedType<MsgLocationsRequest>(msg));
+        }
+        else {
             LOG4CXX_WARN(m_logger, "Unknown response Msg. id=" << msg->Id());
         }
-        return MsgHeader::MsgPointer(nullptr);
+        return nullptr;
     }
 };
 
