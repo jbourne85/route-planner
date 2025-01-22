@@ -4,6 +4,7 @@
 #include <algorithm> 
 #include <chrono>
 #include <cstdlib>
+#include <boost/algorithm/string.hpp>
 #include <boost/asio.hpp>
 #include <iostream>
 #include <memory>
@@ -69,7 +70,7 @@ public:
 
     /// @brief This gets the epoch Timestamp as a Date String
     std::string DateString() const {
-        return std::ctime(&m_header.timestamp);
+        return boost::trim_copy(std::string(std::ctime(&m_header.timestamp)));
     }
 
     /// @brief This method will serialize a this msg
