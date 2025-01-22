@@ -10,11 +10,36 @@ const unsigned int MSG_LOCATIONS_RESPONSE_ID = 104;
 const size_t MSG_LOCATIONS_MAX_CHARS = 100;
 const char MSG_LOCATIONS_SEP_CHAR = ';';
 
+/// @brief This is the Locations request to get a list of locations from the server
+struct MsgLocationsRequestData {
+    size_t start_location;  /// This is the index of the locations on the server to fetch, by default wil be 0
+
+    MsgLocationsRequestData() :
+    start_location(0) {
+    }
+};
+
 /// @brief This is the Locations request Msg
 class MsgLocationsRequest : public MsgHeader {
+    MsgLocationsRequestData m_msg;
 public: 
     typedef std::shared_ptr<MsgLocationsRequest> MsgPointer;        ///typedef for a derived message pointer
-    MsgLocationsRequest() : MsgHeader(MSG_LOCATIONS_REQUEST_ID) {}
+
+    MsgLocationsRequest() : 
+    MsgHeader(MSG_LOCATIONS_REQUEST_ID, sizeof(MsgLocationsRequestData), 
+    (char* const)&m_msg), 
+    m_msg() {
+    }
+
+    void SetStartLocation(size_t index) {
+        m_msg.start_location = index;
+    }
+
+    /// @brief This will get a pointer to the underlying data structure
+    /// @return Data structure pointer
+    const MsgLocationsRequestData* const GetData() {
+        return &m_msg;
+    }
 };
 
 /// @brief This is the Locations response data for the list of locations in the db
@@ -37,7 +62,12 @@ class MsgLocationsResponse : public MsgHeader {
     MsgLocationsResponseData m_msg;
 public:
     typedef std::shared_ptr<MsgLocationsResponse> MsgPointer;   ///typedef for a derived message pointer
-    MsgLocationsResponse() : MsgHeader(MSG_LOCATIONS_RESPONSE_ID, sizeof(MsgLocationsResponseData), (char* const)&m_msg), m_msg() {}
+    
+    MsgLocationsResponse() : 
+    MsgHeader(MSG_LOCATIONS_RESPONSE_ID, sizeof(MsgLocationsResponseData), 
+    (char* const)&m_msg), 
+    m_msg() {
+    }
 
     /// @brief This will add a string representation of a location to the message
     /// @param location_name This is the string location name to add
