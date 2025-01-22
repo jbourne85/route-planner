@@ -5,6 +5,10 @@ add_custom_target(copy_test_data ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${TEST_DATA_DIR} ${CMAKE_BINARY_DIR}/tests/test_data
 )
 
+add_custom_target(copy_test_log4cxx_config ALL
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tests/log4cxx.properties ${CMAKE_BINARY_DIR}/tests/log4cxx.properties
+)
+
 file(GLOB MESSAGE_TESTS "**/test_*.cpp")
 
 add_executable(runTests ${MESSAGE_TESTS} ${MESSAGE_SOURCES} ${TCP_SOURCES} ${ROUTE_SOURCES})
