@@ -16,7 +16,7 @@ protected:
 TEST_F(MsgLocationsTest, MsgLocationRequestConstructor)
 {
     unsigned int id = 103;
-    unsigned int length = sizeof(MsgHeaderData);
+    unsigned int length = sizeof(MsgHeaderData)+ sizeof(MsgLocationsRequestData);
 
     MsgLocationsRequest locations_request;
 

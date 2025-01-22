@@ -59,7 +59,7 @@ TEST_F(MsgFactoryTest, MsgLocationsRequestCreate)
     auto locations_request = msg_factory->Create(MSG_LOCATIONS_REQUEST_ID);
 
     EXPECT_EQ(locations_request->Id(), MSG_LOCATIONS_REQUEST_ID);
-    EXPECT_EQ(locations_request->Length(), sizeof(MsgHeaderData));
+    EXPECT_EQ(locations_request->Length(), sizeof(MsgHeaderData)+ sizeof(MsgLocationsRequestData));
     EXPECT_NE(MsgHeader::GetDerivedType<MsgLocationsRequest>(locations_request), nullptr);
 }
 
