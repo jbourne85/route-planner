@@ -17,7 +17,7 @@ public:
     MOCK_METHOD(const std::vector<Location*>, SetupRoutes, (), (override, const));
 
     /// @brief Adapter method to call RoutePlanner::getRoutes from the mock
-    const std::vector<Location*> MockSetupRoutes() {
+    const std::vector<Location*> RealSetupRoutes() {
         return RoutePlanner::SetupRoutes();
     }
 };
@@ -41,7 +41,7 @@ class RoutePlannerTest : public ::testing::Test {
 protected:
     void SetUp() override {
         log4cxx::PropertyConfigurator::configure("log4cxx.properties");
-        
+
         mock_route_db = std::make_shared<MockRouteDatabase>();
         mock_location_db = std::make_shared<MockLocationDatabase>();
         route_planner = std::make_unique<MockRoutePlanner>(mock_location_db, mock_route_db);
@@ -108,7 +108,7 @@ TEST_F(RoutePlannerTest, GetRoutesSuccess)
         return location_match;
     }); 
 
-    auto calculated_routes = route_planner->MockSetupRoutes();
+    auto calculated_routes = route_planner->RealSetupRoutes();
 
     EXPECT_EQ(calculated_routes.size(), 3);
 
@@ -149,7 +149,7 @@ TEST_F(RoutePlannerTest, TestGetRoutesRereshOnLocationDbChange)
         return std::vector<std::string>();
     }); 
 
-    auto calculated_routes = route_planner->MockSetupRoutes();
+    auto calculated_routes = route_planner->RealSetupRoutes();
     EXPECT_EQ(calculated_routes.size(), 1);
 }
 
@@ -184,7 +184,7 @@ TEST_F(RoutePlannerTest, TestGetRoutesRereshOnRouteDbChange)
         return std::vector<std::string>();
     }); 
 
-    auto calculated_routes = route_planner->MockSetupRoutes();
+    auto calculated_routes = route_planner->RealSetupRoutes();
     EXPECT_EQ(calculated_routes.size(), 1);
 }
 
@@ -216,7 +216,7 @@ TEST_F(RoutePlannerTest, TestGetRoutesNoDbChange)
     EXPECT_CALL(*mock_route_db, GetRoutes(testing::_))
     .Times(0); 
 
-    auto calculated_routes = route_planner->MockSetupRoutes();
+    auto calculated_routes = route_planner->RealSetupRoutes();
     EXPECT_EQ(calculated_routes.size(), 1);
 }
 
