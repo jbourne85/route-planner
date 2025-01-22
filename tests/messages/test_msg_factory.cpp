@@ -72,6 +72,24 @@ TEST_F(MsgFactoryTest, MsgLocationsResponseCreate)
     EXPECT_NE(MsgHeader::GetDerivedType<MsgLocationsResponse>(locations_response), nullptr);
 }
 
+TEST_F(MsgFactoryTest, MsgRouteRequestCreate)
+{
+    auto route_request = msg_factory->Create(MSG_ROUTE_REQUEST_ID);
+
+    EXPECT_EQ(route_request->Id(), MSG_ROUTE_REQUEST_ID);
+    EXPECT_EQ(route_request->Length(), sizeof(MsgHeaderData) + sizeof(MsgRouteRequestData));
+    EXPECT_NE(MsgHeader::GetDerivedType<MsgRouteRequest>(route_request), nullptr);
+}
+
+TEST_F(MsgFactoryTest, MsgRouteResponseCreate)
+{
+    auto route_response = msg_factory->Create(MSG_ROUTE_RESPONSE_ID);
+
+    EXPECT_EQ(route_response->Id(), MSG_ROUTE_RESPONSE_ID);
+    EXPECT_EQ(route_response->Length(), sizeof(MsgHeaderData) + sizeof(MsgRouteResponseData));
+    EXPECT_NE(MsgHeader::GetDerivedType<MsgRouteResponse>(route_response), nullptr);
+}
+
 TEST_F(MsgFactoryTest, MsgNoMatchCreate)
 {
     auto msg = msg_factory->Create(0);
@@ -86,7 +104,9 @@ TEST_F(MsgFactoryTest, MaxMsgLength)
         MSG_STATUS_REQUEST_ID, 
         MSG_STATUS_RESPONSE_ID, 
         MSG_LOCATIONS_REQUEST_ID, 
-        MSG_LOCATIONS_RESPONSE_ID
+        MSG_LOCATIONS_RESPONSE_ID,
+        MSG_ROUTE_REQUEST_ID,
+        MSG_ROUTE_RESPONSE_ID
     };
 
     size_t max_message_size = 0;

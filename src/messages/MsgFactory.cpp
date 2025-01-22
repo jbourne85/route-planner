@@ -19,6 +19,10 @@ MsgHeader::MsgPointer MsgFactory::Create(const unsigned int id) const {
             return MsgLocationsRequest::MsgPointer(new MsgLocationsRequest());
         case MSG_LOCATIONS_RESPONSE_ID:
             return MsgLocationsResponse::MsgPointer(new MsgLocationsResponse());
+        case MSG_ROUTE_REQUEST_ID:
+            return MsgRouteRequest::MsgPointer(new MsgRouteRequest());
+        case MSG_ROUTE_RESPONSE_ID:
+            return MsgRouteResponse::MsgPointer(new MsgRouteResponse());
     }
     LOG4CXX_WARN(m_logger, "Unkown msg id=" << id);
     return MsgHeader::MsgPointer(nullptr);

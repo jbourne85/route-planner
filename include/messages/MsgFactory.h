@@ -3,8 +3,9 @@
 
 #include <log4cxx/logger.h>
 #include "messages/MsgHeader.h"
-#include "messages/MsgStatus.h"
 #include "messages/MsgLocations.h"
+#include "messages/MsgRoute.h"
+#include "messages/MsgStatus.h"
 
 namespace messages {
 
