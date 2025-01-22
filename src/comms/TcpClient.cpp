@@ -7,6 +7,8 @@ using boost::asio::ip::tcp;
 using messages::MsgHeader;
 using messages::MsgFactory;
 
+log4cxx::LoggerPtr TcpClient::m_logger(log4cxx::Logger::getLogger("TcpClient"));
+
 TcpClient::TcpClient() : 
 m_socket(nullptr),
 m_session(nullptr),
@@ -26,11 +28,11 @@ bool TcpClient::StartSession(std::string server_address, unsigned int port_num) 
     boost::asio::connect(*m_socket, endpoints, err);     
 
     if (!err) {
-        std::cout << "Starting session to " << server_address << ":" << port_num << std::endl;
+        LOG4CXX_INFO(m_logger, "Starting session to " << server_address << ":" << port_num);
         m_connected = true;
     }
     else {
-        std::cout << "Error establishing conection to " << server_address << ":" << std::to_string(port_num) << '\n';
+        LOG4CXX_ERROR(m_logger, "Error establishing conection to " << server_address << ":" << std::to_string(port_num));
         return false;
     }
 
@@ -44,6 +46,7 @@ void TcpClient::Send(MsgHeader::MsgPointer msg, MsgHeader::MsgHandler msg_handle
             m_session = std::make_unique<TcpSession<tcp::socket>>(*m_socket, msg_factory);
         }
 
+        LOG4CXX_INFO(m_logger, "Sending Msg. id=" << msg->Id());
         if(m_session->SendMsg(msg)) {
             auto msg_received = m_session->WaitForMsg();
             auto msg_response = msg_handler(msg_received);
@@ -52,8 +55,11 @@ void TcpClient::Send(MsgHeader::MsgPointer msg, MsgHeader::MsgHandler msg_handle
                 Send(msg_response, msg_handler, msg_factory);
             } 
             else {
-                std::cout << "Session ended" << std::endl;
+                LOG4CXX_INFO(m_logger, "Session ended, no further messages");
             }
+        }
+        else {
+            LOG4CXX_ERROR(m_logger, "Failed to send Msg. id=" << msg->Id());
         }
     }
 }

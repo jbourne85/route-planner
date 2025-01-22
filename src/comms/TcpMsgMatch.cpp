@@ -22,6 +22,8 @@ namespace comms {
 
 using messages::MsgHeader;
 
+log4cxx::LoggerPtr TcpMsgMatch::m_logger(log4cxx::Logger::getLogger("TcpMsgMatch"));
+
 TcpMsgMatch::TcpMsgMatch(messages::MsgFactory::MsgFactoryPtr msg_factory) : 
 m_total_bytes_read(0),
 m_bytes_received(0),
@@ -39,12 +41,20 @@ std::pair<TcpMsgMatch::MsgBufferIterator, bool> TcpMsgMatch::ProcessBuffer(TcpMs
 
     if (m_total_bytes_read >= m_header_length) {
         m_msg_header->Deserialize(m_buffer);
+        LOG4CXX_DEBUG(m_logger, "Received msg header. total_bytes_read=" << m_total_bytes_read << " header.id=" << m_msg_header->Id() << " header.length=" << m_header_length);
         m_msg = m_msg_factory->Create(m_msg_header->Id());
 
         if (m_msg && m_total_bytes_read >= m_msg->Length()) {
             m_msg->Deserialize(m_buffer);
+            LOG4CXX_DEBUG(m_logger, "Received msg body. total_bytes_read=" << m_total_bytes_read << " header.id=" << m_msg_header->Id() << " header.length=" << m_msg->Length());
             return std::make_pair(end, true); 
         }
+        else {
+            LOG4CXX_DEBUG(m_logger, "Waiting to receive msg body. total_bytes_read=" << m_total_bytes_read << " header.length=" << m_header_length);
+        }
+    }
+    else {
+        LOG4CXX_DEBUG(m_logger, "Waiting to receive msg header. total_bytes_read=" << m_total_bytes_read << " header.length=" << m_header_length);
     }
 
     return std::make_pair(end, false); 

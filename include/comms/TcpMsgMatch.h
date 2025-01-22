@@ -2,6 +2,7 @@
 #define TCPMSGMATCH_H
 
 #include <boost/asio.hpp>
+#include <log4cxx/logger.h>
 #include "messages/MsgFactory.h"
 #include "messages/MsgHeader.h"
 
@@ -9,7 +10,7 @@ namespace comms {
 
 /// @brief This class knows how to look at a boost message buffer and look for/create any messages that it may contain
 class TcpMsgMatch {
-    
+    static log4cxx::LoggerPtr m_logger;
     size_t m_total_bytes_read;
     size_t m_bytes_received;
     std::vector<char> m_buffer;

@@ -2,6 +2,7 @@
 #define TCPSERVER_H
 
 #include <boost/asio.hpp>
+#include <log4cxx/logger.h>
 #include "comms/TcpSession.h"
 #include "messages/MsgHeader.h"
 
@@ -9,6 +10,7 @@ namespace comms {
     
 /// @brief This top level TcpServer class which knows how to receive connections from a TcpClient to and receive/send messages.
 class TcpServer {
+    static log4cxx::LoggerPtr m_logger;
     boost::asio::io_context m_io_context;
     boost::asio::ip::tcp::acceptor m_acceptor;
     bool m_running;

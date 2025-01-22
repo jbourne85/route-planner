@@ -2,6 +2,7 @@
 #define TCPSESSION_H
 
 #include <boost/asio.hpp>
+#include <log4cxx/logger.h>
 #include "messages/MsgFactory.h"
 #include "messages/MsgHeader.h"
 #include "comms/TcpMsgMatch.h"
@@ -12,11 +13,12 @@ namespace comms {
 ///        boost::asio::ip::tcp::socket.
 template<typename SocketType>
 class TcpSession : public std::enable_shared_from_this<TcpSession<SocketType> > {
-protected:
+    static log4cxx::LoggerPtr m_logger;
     SocketType m_socket;
     messages::MsgFactory::MsgFactoryPtr m_msg_factory;
     boost::asio::streambuf m_buffer;
 
+protected:
     /// @brief This will process the current session based on a received message, it will keep it alive as long as new messages are received
     /// @param received_msg This is the incomming message to process
     /// @param msg_handler This is the message handler to call for a received message, if it returns a new message then this is sent on
@@ -39,11 +41,13 @@ protected:
 
 public:
 
-    TcpSession(SocketType& socket, messages::MsgFactory::MsgFactoryPtr msg_factory) : m_socket(std::move(socket)), m_msg_factory(msg_factory)
-    {}
+    TcpSession(SocketType& socket, messages::MsgFactory::MsgFactoryPtr msg_factory) : 
+    m_socket(std::move(socket)), 
+    m_msg_factory(msg_factory) {
+    }
 
-    virtual ~TcpSession()
-    {}
+    virtual ~TcpSession() {
+    }
 
     /// @brief This waits for a valid message to be received on a socket using the boost::asio::async_read_until
     /// @param msg_handler This is the message response handler which will be called on reception of a message
@@ -59,6 +63,7 @@ public:
             messages::MsgHeader::MsgPointer received_msg(nullptr);
             if (!err) {
                 received_msg = msg_matcher->GetMsg();
+                LOG4CXX_DEBUG(m_logger, "Asnc Wait received msg. id=" << received_msg->Id());
             }
             else {
                 throw std::runtime_error("Error Receiving Msg: " + err.message());
@@ -81,14 +86,19 @@ public:
         messages::MsgHeader::MsgPointer msg_header = m_msg_factory->Create(messages::MSG_HEADER_ID);
 
         while (total_bytes_read < msg_header->Length()) {
+            LOG4CXX_DEBUG(m_logger, "Waiting for Msg...");
             bytes_received = m_socket.read_some(boost::asio::buffer(temp_buffer, max_buffer_size), err);           
-            total_bytes_read += bytes_received;        
+            total_bytes_read += bytes_received;    
+            LOG4CXX_DEBUG(m_logger, "Waiting for Msg, Received data. total_bytes_read=" << total_bytes_read << " length=" << msg_header->Length());    
+            
             if (err) {
                 break;
             }
 
             buffer.insert(buffer.end(), temp_buffer, temp_buffer + bytes_received);
-            msg_header->Deserialize(buffer);
+            size_t bytes_deserialized = msg_header->Deserialize(buffer);
+
+            LOG4CXX_DEBUG(m_logger, "Waiting for Msg, deserialized data. bytes_deserialized=" << bytes_deserialized << " id=" << msg_header->Id());  
         } 
 
         messages::MsgHeader::MsgPointer msg = messages::MsgHeader::MsgPointer(nullptr);
@@ -97,6 +107,7 @@ public:
             msg = m_msg_factory->Create(msg_header->Id());
             if(msg) {
                 msg->Deserialize(buffer);
+                LOG4CXX_DEBUG(m_logger, "Waiting for Msg, received and deserialized msg id=" << msg->Id());
             }
         }
         else {
@@ -116,7 +127,8 @@ public:
         auto self(this->shared_from_this());
 
         boost::asio::async_write(m_socket, boost::asio::buffer(buffer), 
-        [this, self, msg_handler](boost::system::error_code err, std::size_t bytes_sent) {
+        [this, self, msg_handler, msg](boost::system::error_code err, std::size_t bytes_sent) {
+            LOG4CXX_DEBUG(m_logger, "Asnc Send. sent msg. id=" << msg->Id());
             if (!err) {
                 self->ProcessSession(msg_handler);
             }
@@ -139,6 +151,7 @@ public:
 
         if (!err) {
             bytes_sent = msg->Length();
+            LOG4CXX_DEBUG(m_logger, "Sent msg. id=" << msg->Id());
         }
         else {
             throw std::runtime_error("Error Sending Msg: " + err.message());
@@ -151,6 +164,9 @@ public:
         return &m_socket;
     }
 };
+
+template<typename SocketType>
+log4cxx::LoggerPtr TcpSession<SocketType>::m_logger(log4cxx::Logger::getLogger("TcpSession"));
 
 }
 
