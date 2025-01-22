@@ -1,5 +1,8 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <log4cxx/logger.h>
+#include <log4cxx/propertyconfigurator.h>
+#include <log4cxx/helpers/exception.h>
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -43,8 +46,15 @@ public:
     }
 };
 
+class FileRouteDatabaseTest : public ::testing::Test {
+protected:
+    void SetUp() override {
+        log4cxx::PropertyConfigurator::configure("log4cxx.properties");
+    }
+};
+
 /// @brief Test case to test MockFileLocationDatabase::GetLocationByName() which is used by the other tests
-TEST(AddTest, TestMockGetRoutesByName)
+TEST_F(FileRouteDatabaseTest, TestMockGetRoutesByName)
 {
     MockFileRouteDatabase test_db; 
 
@@ -80,7 +90,7 @@ TEST(AddTest, TestMockGetRoutesByName)
 }
 
 /// @brief Test case for MockFileRouteDatabase::GetRoutesOnDisk() For testing successfully loading the routes from disk
-TEST(AddTest, TestRoutesOnDiskSuccess)
+TEST_F(FileRouteDatabaseTest, TestRoutesOnDiskSuccess)
 {
     const std::string test_data_file = MockFileRouteDatabase::GetDataPath("test_load_success.csv");
     MockFileRouteDatabase test_db(test_data_file);
@@ -111,7 +121,7 @@ TEST(AddTest, TestRoutesOnDiskSuccess)
 }
 
 /// @brief Test case for FileRouteDatabase::GetRoutesOnDisk() For testing the routes source file not existing
-TEST(AddTest, TestRoutesOnDiskErrorFileMissing)
+TEST_F(FileRouteDatabaseTest, TestRoutesOnDiskErrorFileMissing)
 {
     const std::string test_data_file = MockFileRouteDatabase::GetDataPath("test_non_existant_file.csv");
     MockFileRouteDatabase test_db(test_data_file);
@@ -122,7 +132,7 @@ TEST(AddTest, TestRoutesOnDiskErrorFileMissing)
 }
 
 /// @brief Test case for FileRouteDatabase::Load() For a successful load from disk
-TEST(AddTest, TestRoutesLoadSuccess)
+TEST_F(FileRouteDatabaseTest, TestRoutesLoadSuccess)
 {
     MockFileRouteDatabase test_db;
 
@@ -166,7 +176,7 @@ TEST(AddTest, TestRoutesLoadSuccess)
 }
 
 /// @brief Test case for FileRouteDatabase::Load() For a failed load from disk
-TEST(AddTest, TestRoutesLoadFailed)
+TEST_F(FileRouteDatabaseTest, TestRoutesLoadFailed)
 {
     MockFileRouteDatabase test_db;
 

@@ -1,5 +1,8 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <log4cxx/logger.h>
+#include <log4cxx/propertyconfigurator.h>
+#include <log4cxx/helpers/exception.h>
 #include "route/ILocationDatabase.h"
 #include "route/IRouteDatabase.h"
 #include "route/RoutePlanner.h"
@@ -37,6 +40,8 @@ public:
 class RoutePlannerTest : public ::testing::Test {
 protected:
     void SetUp() override {
+        log4cxx::PropertyConfigurator::configure("log4cxx.properties");
+        
         mock_route_db = std::make_shared<MockRouteDatabase>();
         mock_location_db = std::make_shared<MockLocationDatabase>();
         route_planner = std::make_unique<MockRoutePlanner>(mock_location_db, mock_route_db);

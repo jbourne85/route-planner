@@ -1,9 +1,19 @@
 #include <gtest/gtest.h>
+#include <log4cxx/logger.h>
+#include <log4cxx/propertyconfigurator.h>
+#include <log4cxx/helpers/exception.h>
 #include "route/Location.h"
 
 using namespace route;
 
-TEST(AddTest, LocationConstructor)
+class LocationTest : public ::testing::Test {
+protected:
+    void SetUp() override {
+        log4cxx::PropertyConfigurator::configure("log4cxx.properties");
+    }
+};
+
+TEST_F(LocationTest, LocationConstructor)
 {
     Location* const location = new Location("test location", 10);
     
@@ -14,7 +24,7 @@ TEST(AddTest, LocationConstructor)
     delete location;
 }
 
-TEST(AddTest, AddDesination)
+TEST_F(LocationTest, AddDesination)
 {
     Location* const location_src = new Location("test location 1", 10);
     Location* const location_valid_dst = new Location("test location 2", 20);

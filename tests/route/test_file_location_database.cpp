@@ -1,5 +1,8 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <log4cxx/logger.h>
+#include <log4cxx/propertyconfigurator.h>
+#include <log4cxx/helpers/exception.h>
 #include "route/Location.h"
 #include "route/FileLocationDatabase.h"
 
@@ -55,8 +58,15 @@ public:
     }
 };
 
+class FileLocationDatabaseTest : public ::testing::Test {
+protected:
+    void SetUp() override {
+        log4cxx::PropertyConfigurator::configure("log4cxx.properties");
+    }
+};
+
 /// @brief Test case to test MockFileLocationDatabase::GetLocationByName() which is used by the other tests
-TEST(AddTest, TestMockGetLocationByName)
+TEST_F(FileLocationDatabaseTest, TestMockGetLocationByName)
 {
     MockFileLocationDatabase test_db("mock_file.csv"); 
 
@@ -73,7 +83,7 @@ TEST(AddTest, TestMockGetLocationByName)
 }
 
 /// @brief Test case for FileLocationDatabase::GetLocationsOnDisk() For testing successfully loading the locations from disk
-TEST(AddTest, TestLocationsOnDiskSuccess)
+TEST_F(FileLocationDatabaseTest, TestLocationsOnDiskSuccess)
 {
     const std::string test_data_file = MockFileLocationDatabase::GetDataPath("test_load_success.csv");
     MockFileLocationDatabase test_db(test_data_file);
@@ -103,7 +113,7 @@ TEST(AddTest, TestLocationsOnDiskSuccess)
 }
 
 /// @brief Test case for FileLocationDatabase::GetLocationsOnDisk() For testing the locations source file not existing
-TEST(AddTest, TestLocationsOnDiskErrorFileMissing)
+TEST_F(FileLocationDatabaseTest, TestLocationsOnDiskErrorFileMissing)
 {
     const std::string test_data_file = MockFileLocationDatabase::GetDataPath("test_non_existant_file.csv");
     MockFileLocationDatabase test_db(test_data_file);
@@ -116,7 +126,7 @@ TEST(AddTest, TestLocationsOnDiskErrorFileMissing)
 }
 
 /// @brief Test case for FileLocationDatabase::GetLocationsOnDisk() For testing a parsing error during loading the locations
-TEST(AddTest, TestLocationsOnDiskErrorWhileParsing)
+TEST_F(FileLocationDatabaseTest, TestLocationsOnDiskErrorWhileParsing)
 {
     const std::string test_data_file = MockFileLocationDatabase::GetDataPath("test_load_bad_data.csv");
     MockFileLocationDatabase test_db(test_data_file);
@@ -131,7 +141,7 @@ TEST(AddTest, TestLocationsOnDiskErrorWhileParsing)
 }
 
 /// @brief Test case for FileLocationDatabase::Load() For a successful load from disk
-TEST(AddTest, TestLocationsLoadSuccess)
+TEST_F(FileLocationDatabaseTest, TestLocationsLoadSuccess)
 {
     MockFileLocationDatabase test_db;
 
@@ -166,7 +176,7 @@ TEST(AddTest, TestLocationsLoadSuccess)
 }
 
 /// @brief Test case for FileLocationDatabase::Load() For a failed load from disk
-TEST(AddTest, TestLocationsLoadFailed)
+TEST_F(FileLocationDatabaseTest, TestLocationsLoadFailed)
 {
     MockFileLocationDatabase test_db;
 
