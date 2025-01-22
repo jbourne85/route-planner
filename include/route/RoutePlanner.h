@@ -1,6 +1,7 @@
 #ifndef ROUTEPLANNER_H
 #define ROUTEPLANNER_H
 
+#include <log4cxx/logger.h>
 #include "route/ILocationDatabase.h"
 #include "route/IRouteDatabase.h"
 #include "route/Location.h"
@@ -9,6 +10,7 @@ namespace route {
 
 /// @brief this is the main Route planner class, it should know how to create all the routes between locations
 class RoutePlanner {
+    static log4cxx::LoggerPtr m_logger;
     std::shared_ptr<ILocationDatabase> m_location_db;
     std::shared_ptr<IRouteDatabase> m_route_db;
     

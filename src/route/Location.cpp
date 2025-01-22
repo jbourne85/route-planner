@@ -29,5 +29,5 @@ bool Location::DestinationIsValid(const Location *const destination) {
     auto location = m_destinations.find(destination->Name());
     return location != m_destinations.end();
 }
-}
 
+}

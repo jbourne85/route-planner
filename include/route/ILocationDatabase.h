@@ -30,6 +30,7 @@ public:
     virtual Location* const GetLocation(std::string location_name) const = 0;  
 
 };
+
 }
 
 #endif

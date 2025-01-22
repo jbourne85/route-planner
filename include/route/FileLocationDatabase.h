@@ -1,6 +1,7 @@
 #ifndef LOCATIONDATABASE_H
 #define LOCATIONDATABASE_H
 
+#include <log4cxx/logger.h>
 #include <string>
 #include <unordered_map>
 #include "route/Location.h"
@@ -10,6 +11,7 @@ namespace route {
 
 /// @brief This class manages the database of locations. It knows how to load and sync it from a datafile
 class FileLocationDatabase : public ILocationDatabase {
+    static log4cxx::LoggerPtr m_logger;
     const std::string m_database_file;
     std::unordered_map<std::string, Location*> m_location_map;  
     std::vector<Location*> m_location_list;  

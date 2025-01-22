@@ -8,16 +8,18 @@
 
 namespace route {
 
+log4cxx::LoggerPtr FileRouteDatabase::m_logger(log4cxx::Logger::getLogger("FileRouteDatabase"));
+
 FileRouteDatabase::FileRouteDatabase(const std::string route_file) :
-m_route_file(route_file)
-{
+m_route_file(route_file),
+m_routes() {
 }
 
 std::unordered_map<std::string, std::vector<std::string>> FileRouteDatabase::GetRoutesOnDisk() const {
     std::unordered_map<std::string, std::vector<std::string>> routes_on_disk;
     std::ifstream file(m_route_file);
     if (!file.is_open()) {
-        std::cerr << "Error: Could not open the database file " << m_route_file << std::endl;
+        LOG4CXX_ERROR(m_logger, "Could not open the route database file " << m_route_file);
         return routes_on_disk;
     }
 
@@ -31,23 +33,25 @@ std::unordered_map<std::string, std::vector<std::string>> FileRouteDatabase::Get
         std::vector<std::string> route_data; 
         
         if (ss.str().length()) {
-        while (std::getline(ss, value, ',')) { 
-            route_data.push_back(boost::trim_copy(value));
-        }
+            while (std::getline(ss, value, ',')) { 
+                route_data.push_back(boost::trim_copy(value));
+            }
         
-        const std::string source = route_data[0];
-        const std::vector<std::string> destinations(route_data.begin() + 1, route_data.end());
+            const std::string source = route_data[0];
+            const std::vector<std::string> destinations(route_data.begin() + 1, route_data.end());
 
-        auto route = routes_on_disk.find(source);
+            auto route = routes_on_disk.find(source);
 
-        if (route == routes_on_disk.end()) {
-            routes_on_disk.insert(std::make_pair(route_data[0], destinations));
-        }
-        else {
-            route->second.insert(route->second.end(), destinations.begin(), destinations.end());
-        }       
+            if (route == routes_on_disk.end()) {
+                routes_on_disk.insert(std::make_pair(route_data[0], destinations));
+            }
+            else {
+                route->second.insert(route->second.end(), destinations.begin(), destinations.end());
+            }  
+        }     
     }
-    }
+
+    LOG4CXX_DEBUG(m_logger, "Loaded " << routes_on_disk.size() << " route(s) config from disk");    
 
     file.close(); 
     return routes_on_disk;
@@ -74,6 +78,5 @@ std::vector<std::string> FileRouteDatabase::GetRoutes(const std::string start_lo
     }
     return std::vector<std::string>();
 }
-
 
 }

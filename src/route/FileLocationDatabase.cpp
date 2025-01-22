@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <boost/algorithm/string.hpp>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -8,10 +9,12 @@
 
 namespace route {
 
-FileLocationDatabase::FileLocationDatabase(const std::string location_file) :
-m_database_file(location_file)
-{
+log4cxx::LoggerPtr FileLocationDatabase::m_logger(log4cxx::Logger::getLogger("FileLocationDatabase"));
 
+FileLocationDatabase::FileLocationDatabase(const std::string location_file) :
+m_database_file(location_file),
+m_location_map(),
+m_location_list() {
 }
 
 FileLocationDatabase::~FileLocationDatabase() {
@@ -33,8 +36,9 @@ void FileLocationDatabase::AddLocation(Location* location) {
 std::vector<Location*> FileLocationDatabase::GetLocationsOnDisk() {
     std::vector<Location*> locations_on_disk;
     std::ifstream file(m_database_file);
+    
     if (!file.is_open()) {
-        std::cerr << "Error: Could not open the database file " << m_database_file << std::endl;
+        LOG4CXX_ERROR(m_logger, "Could not open the database file " << m_database_file);
         return locations_on_disk;
     }
 
@@ -43,34 +47,37 @@ std::vector<Location*> FileLocationDatabase::GetLocationsOnDisk() {
 
     const unsigned int name_i = 0;
     const unsigned int cost_i = 1;
-    
+
     while (file.good() && !error) {
         std::getline(file, line);
         std::stringstream ss(boost::trim_copy(line));   
         std::string value;
         std::vector<std::string> location_data; 
-        
-        if (ss.str().length()) {
-        while (std::getline(ss, value, ',')) { 
-                location_data.push_back(boost::trim_copy(value));
-        }
 
-        try {
-            locations_on_disk.push_back(
-                new Location(
-                    location_data[name_i], 
-                    std::stoi(location_data[cost_i])
-                )
-            );
-        }
-        catch (const std::invalid_argument& ex) {
-            std::cerr << "Error: Could not parse string to number the database file entry: '" << line << "'" << std::endl;
-            std::cerr << "Error: Assuming the database file is malformed" << std::endl;
-            DeleteLocations(locations_on_disk);
-            error = true;
+        if (ss.str().length()) {
+            while (std::getline(ss, value, ',')) { 
+                location_data.push_back(boost::trim_copy(value));
+            }
+
+            try {
+                locations_on_disk.push_back(
+                    new Location(
+                        location_data[name_i], 
+                        std::stoi(location_data[cost_i])
+                    )  
+                );
+                LOG4CXX_DEBUG(m_logger, "Adding location. name=" << locations_on_disk.back()->Name() << " cost=" << locations_on_disk.back()->Cost()); 
+            }
+            catch (const std::invalid_argument& ex) {
+                LOG4CXX_ERROR(m_logger, "Could not parse string to number the database file entry: '" << line << "'");
+                LOG4CXX_ERROR(m_logger, "Assuming the database file is malformed");
+                DeleteLocations(locations_on_disk);
+                error = true;
             }
         }
     }
+
+    LOG4CXX_DEBUG(m_logger, "Loaded " << locations_on_disk.size() << " location(s) config from disk");    
 
     file.close(); 
     return locations_on_disk;
@@ -82,7 +89,7 @@ bool FileLocationDatabase::Load() {
     auto locations_on_disk = GetLocationsOnDisk();
     if (!locations_on_disk.size()) {
         return false;
-    }
+    } 
 
     // Reset the current location database
     DeleteLocations(m_location_list);
@@ -108,4 +115,5 @@ Location* const FileLocationDatabase::GetLocation(std::string location_name) con
     }
     return nullptr;
 }
+
 }

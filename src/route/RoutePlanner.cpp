@@ -3,6 +3,8 @@
 
 namespace route {
 
+log4cxx::LoggerPtr RoutePlanner::m_logger(log4cxx::Logger::getLogger("RoutePlanner"));
+
 RoutePlanner::RoutePlanner(std::shared_ptr<ILocationDatabase> location_db, std::shared_ptr<IRouteDatabase> route_db) :
 m_location_db(location_db),
 m_route_db(route_db)
@@ -14,6 +16,7 @@ const std::vector<Location*> RoutePlanner::SetupRoutes() const{
     bool routes_updated = m_route_db->Load();
 
     if (locations_updated || routes_updated) {
+        LOG4CXX_DEBUG(m_logger, "locations/Routes db changed, re-configuring database. locations_updated=" << locations_updated << " routes_updated=" << routes_updated);
         const std::vector<Location*> locations = m_location_db->GetLocations();
 
         std::for_each(locations.begin(), locations.end(), [this](Location* const start_location) -> void {
@@ -22,14 +25,17 @@ const std::vector<Location*> RoutePlanner::SetupRoutes() const{
                 const Location* end_location = m_location_db->GetLocation(location);
                 if (end_location) {
                     start_location->AddDestination(end_location);
-                    std::cout << "Route Added. " << start_location->Name() << " -> " << end_location->Name() << std::endl;
+                    LOG4CXX_DEBUG(m_logger, "Configured route Added. " << start_location->Name() << " -> " << end_location->Name());
                 }
             });
         });
+        LOG4CXX_DEBUG(m_logger, "Configured " << locations.size() << " routes");
         return locations;
     }
     else {
-        return m_location_db->GetLocations();
+        const std::vector<Location*> locations = m_location_db->GetLocations();
+        LOG4CXX_DEBUG(m_logger, "Currently " << locations.size() << " routes configured");
+        return locations;
     }
 }
 

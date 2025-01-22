@@ -1,6 +1,7 @@
 #ifndef ROUTEDATABASE_H
 #define ROUTEDATABASE_H
 
+#include <log4cxx/logger.h>
 #include <string>
 #include <unordered_map>
 #include "route/IRouteDatabase.h"
@@ -9,6 +10,7 @@ namespace route {
 
 /// @brief This class manages the database of routes. It knows how to load and sync them from a datafile
 class FileRouteDatabase : public IRouteDatabase {
+    static log4cxx::LoggerPtr m_logger;
     const std::string m_route_file;
     std::unordered_map<std::string, std::vector<std::string>> m_routes; ///A string map of start -> end locations (where end is a list avaliable locations)
 protected:
@@ -28,6 +30,7 @@ public:
     /// @return The list of routes from that start location
     std::vector<std::string> GetRoutes(const std::string start_location_name) const;
 };
+
 }
 
 #endif
