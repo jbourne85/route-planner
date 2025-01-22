@@ -32,10 +32,14 @@ public:
     m_msg() {
     }
 
+    /// @brief This will set the start location index in the data msg
+    /// @param index This is start location index
     void SetStartLocation(size_t index) {
         m_msg.start_location = index;
     }
 
+    /// @brief This will set the end location index in the data msg
+    /// @param index This is end location index
     void SetEndLocation(size_t index) {
         m_msg.end_location = index;
     }
@@ -67,6 +71,13 @@ public:
     MsgHeader(MSG_ROUTE_RESPONSE_ID, sizeof(MsgRouteResponseData), 
     (char* const)&m_msg), 
     m_msg() {
+    }
+
+
+    /// @brief This will set the route calculation cost in the data msg
+    /// @param index This is route calculation cost
+    void SetCost(size_t cost) {
+        m_msg.cost = cost;
     }
 
     /// @brief This will get a pointer to the underlying data structure

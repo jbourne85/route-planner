@@ -35,7 +35,7 @@ public:
     /// @param start This is the start location
     /// @param destination This is the end location
     /// @return The route cost on success, 0 on failure
-    unsigned int GetRouteCost(std::string start, std::string destination);
+    unsigned int GetRouteCost(std::string start_location_name, std::string end_location_name);
 };
 
 }

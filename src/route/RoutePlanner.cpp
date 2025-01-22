@@ -51,7 +51,16 @@ std::vector<std::string> RoutePlanner::GetLocationNames() const {
     return location_names;
 }
 
-unsigned int RoutePlanner::GetRouteCost(std::string start, std::string destination) {
-    return 0;
+unsigned int RoutePlanner::GetRouteCost(std::string start_location_name, std::string end_location_name) {
+    Location* const start_location = m_location_db->GetLocation(start_location_name);
+    Location* const end_location = m_location_db->GetLocation(end_location_name);
+
+    size_t cost = 0;
+
+    if (start_location && end_location) {
+         LOG4CXX_INFO(m_logger, "Calculating the route cost for: " << start_location->Name() << " -> " << end_location->Name());
+    }
+   
+    return cost;
 }
 }

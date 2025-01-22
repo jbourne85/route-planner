@@ -52,6 +52,26 @@ public:
         return nullptr;
     }
 
+    MsgHeader::MsgPointer HandleRouteRequestMsg(MsgRouteRequest::MsgPointer route_request) {
+        LOG4CXX_INFO(m_logger, "Received Route Request Msg. timestamp=" << route_request->DateString());
+        size_t start_location = route_request->GetData()->start_location;
+        size_t end_location = route_request->GetData()->end_location;
+
+        auto locations = m_route_planner->GetLocationNames();
+        if (start_location < locations.size() && end_location < locations.size()) {
+            size_t cost = m_route_planner->GetRouteCost(locations[start_location], locations[end_location]);
+
+            auto response_msg = MsgHeader::GetDerivedType<MsgRouteResponse>(m_msg_factory.Create(MSG_ROUTE_RESPONSE_ID));
+            response_msg->SetCost(cost);
+
+            return response_msg;
+        }
+        else {
+            LOG4CXX_ERROR(m_logger, "Unexpected start_location / end_location in Route Request msg. start_location=" << start_location << " end_location=" << end_location << " locations.n" << locations.size());
+        }
+        return nullptr;
+    }
+
     MsgHeader::MsgPointer MsgHandler(MsgHeader::MsgPointer msg) {
         
         if (msg->Id() == MSG_STATUS_REQUEST_ID) {   
@@ -59,6 +79,9 @@ public:
         }
         else if (msg->Id() == MSG_LOCATIONS_REQUEST_ID) {
             return HandleLocationsRequestMsg(MsgHeader::GetDerivedType<MsgLocationsRequest>(msg));
+        }
+        else if (msg->Id() == MSG_ROUTE_REQUEST_ID) {
+            return HandleRouteRequestMsg(MsgHeader::GetDerivedType<MsgRouteRequest>(msg));
         }
         else {
             LOG4CXX_WARN(m_logger, "Unknown response Msg. id=" << msg->Id());

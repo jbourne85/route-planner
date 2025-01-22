@@ -22,6 +22,37 @@ public:
     m_location_start(0)
     {}
 
+    MsgHeader::MsgPointer GetRouteRequest() {
+        std::cout << "The following " << m_locations_cache.size() << " locations are avaliable to route between:" << std::endl;
+        size_t index = 0;
+        std::for_each(m_locations_cache.begin(), m_locations_cache.end(), [this, &index](std::string location) -> void {
+                std::cout << index << " - " << location << std::endl;
+                ++index;
+        });
+
+        size_t start_location = m_locations_cache.size();
+        while(start_location >= m_locations_cache.size()) {
+            std::cout << "Please Enter starting location number:" << std::endl;
+            std::cin >> start_location;
+            std::cin.ignore();
+        }
+
+        size_t end_location = m_locations_cache.size();
+        while(end_location >= m_locations_cache.size()) {
+            std::cout << "Please Enter ending location number:" << std::endl;
+            std::cin >> end_location;
+            std::cin.ignore();
+        }
+
+        std::cout << "Calculating the route cost for: " << m_locations_cache[start_location] << " -> " << m_locations_cache[end_location] << std::endl;
+
+        auto route_request = MsgHeader::GetDerivedType<MsgRouteRequest>(m_msg_factory.Create(MSG_ROUTE_REQUEST_ID));
+        route_request->SetStartLocation(start_location);
+        route_request->SetEndLocation(end_location);
+        
+        return route_request;
+    }
+
     MsgHeader::MsgPointer HandleStatusResponseMsg(MsgStatusResponse::MsgPointer status_response) {
         LOG4CXX_INFO(m_logger, "Received Status Response Msg. datestring=" << status_response->DateString() << " Server is Up!");
         std::cout << "Connected to Route Planner service!" << std::endl;
@@ -49,12 +80,17 @@ public:
             return locations_request;
         } 
         else {
-            std::cout << "The following " << m_locations_cache.size() << " locations are avaliable to route between:" << std::endl;
-            std::for_each(m_locations_cache.begin(), m_locations_cache.end(), [this](std::string location) -> void {
-                std::cout << "- " << location << std::endl;
-            });    
+            return GetRouteRequest();
         }
         return nullptr;
+    }
+
+    MsgHeader::MsgPointer HandleRouteResponseMsg(MsgRouteResponse::MsgPointer route_response) {
+        LOG4CXX_INFO(m_logger, "Received Route Response Msg. timestamp=" << route_response->DateString()); 
+        std::cout << "Route Calculation cost " << route_response->GetData()->cost << std::endl;
+
+        m_locations_cache.clear();
+        return m_msg_factory.Create(MSG_LOCATIONS_REQUEST_ID);
     }
 
     MsgHeader::MsgPointer MsgHandler(MsgHeader::MsgPointer msg) {
@@ -63,6 +99,9 @@ public:
         }
         else if (msg->Id() == messages::MSG_LOCATIONS_RESPONSE_ID) {
             return HandleLocationsResponseMsg(MsgHeader::GetDerivedType<MsgLocationsResponse>(msg));
+        }
+        else if (msg->Id() == messages::MSG_ROUTE_RESPONSE_ID) {
+            return HandleRouteResponseMsg(MsgHeader::GetDerivedType<MsgRouteResponse>(msg));
         }
         else {
             std::cout << "Unknown response message" << std::endl;
