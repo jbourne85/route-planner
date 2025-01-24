@@ -35,7 +35,7 @@ public:
     /// @brief Check if a destinaton is valid from this location
     /// @param destination The valid destination to look for
     /// @return True if it is, False if not
-    bool DestinationIsValid(const Location* destination);
+    bool DestinationIsValid(const Location* destination) const;
 };
 
 }

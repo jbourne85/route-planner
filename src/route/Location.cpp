@@ -25,7 +25,7 @@ void Location::AddDestination(const Location *const destination) {
     m_destinations.insert(std::make_pair(destination->Name(), destination));
 }
 
-bool Location::DestinationIsValid(const Location *const destination) {
+bool Location::DestinationIsValid(const Location *const destination) const {
     auto location = m_destinations.find(destination->Name());
     return location != m_destinations.end();
 }
