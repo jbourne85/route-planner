@@ -87,7 +87,7 @@ std::vector<Location*> FileLocationDatabase::GetLocationsOnDisk() {
 bool FileLocationDatabase::Load() {
     //Get the locations on disk
     auto locations_on_disk = GetLocationsOnDisk();
-    if (!locations_on_disk.size()) {
+    if (!locations_on_disk.size() || locations_on_disk.size() == m_location_map.size()) {
         return false;
     } 
 

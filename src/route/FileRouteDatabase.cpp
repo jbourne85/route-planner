@@ -61,7 +61,7 @@ std::unordered_map<std::string, std::vector<std::string>> FileRouteDatabase::Get
 bool FileRouteDatabase::Load() {
     //Get the routes on disk
     auto routes_on_disk = GetRoutesOnDisk();
-    if (!routes_on_disk.size()) {
+    if (!routes_on_disk.size() || routes_on_disk.size() == m_routes.size()) {
         return false;
     }
 
