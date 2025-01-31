@@ -130,15 +130,13 @@ int main(int argc, char* argv[])
 
     std::shared_ptr<FileLocationDatabase> location_db = std::make_shared<FileLocationDatabase>(locations_db);
     std::shared_ptr<FileRouteDatabase> route_db = std::make_shared<FileRouteDatabase>(routes_db);
+    std::shared_ptr<MsgFactory> msg_factory = std::make_shared<MsgFactory>();
 
     RoutePlanner route_planner(location_db, route_db);
+    ServerMsgHandler msg_handler(msg_factory, &route_planner);    
 
     try {
-        std::shared_ptr<MsgFactory> msg_factory(new MsgFactory);
         comms::TcpServer server(port_num);
-
-        ServerMsgHandler msg_handler(msg_factory, &route_planner);        
-
         server.Start(std::bind(&ServerMsgHandler::MsgHandler, &msg_handler, std::placeholders::_1), msg_factory);        
     }
     catch(const std::exception& e)

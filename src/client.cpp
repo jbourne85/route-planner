@@ -147,16 +147,16 @@ int main(int argc, char* argv[])
     const std::string server_address(argv[1]);
     const unsigned int port_num(std::stoi(argv[2]));
 
+    std::shared_ptr<MsgFactory> msg_factory = std::make_shared<MsgFactory>();
+    MsgHeader::MsgPointer msg = msg_factory->Create(messages::MSG_STATUS_REQUEST_ID);
+
+    ClientMsgHandler msg_handler(msg_factory);
+
     try
     {
         comms::TcpClient client;
 
         if (client.StartSession(server_address, port_num)) {
-            std::shared_ptr<MsgFactory> msg_factory(new MsgFactory);
-            MsgHeader::MsgPointer msg = msg_factory->Create(messages::MSG_STATUS_REQUEST_ID);
-            
-            ClientMsgHandler msg_handler(msg_factory);
-
             client.Send(msg, std::bind(&ClientMsgHandler::MsgHandler, &msg_handler, std::placeholders::_1), msg_factory);
         }
     }
