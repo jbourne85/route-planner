@@ -14,26 +14,39 @@ using namespace log4cxx;
 using namespace messages;
 using namespace route;
 
+/// @brief This is the main Server Msg handler. It should know how to receive request messages from a connected client and respond to them
 class ServerMsgHandler {
     static LoggerPtr m_logger;
-    route::RoutePlanner* m_route_planner;
-    MsgFactory m_msg_factory;
+    MsgFactory::MsgFactoryPtr m_msg_factory;    /// The Message Factory to use when creating the requests/response
+    route::RoutePlanner* m_route_planner;   /// The Route planner object, this is what knows how to calculate routes and holds the list of valid routes and locations
 public:
-    ServerMsgHandler(route::RoutePlanner* route_planner) : 
+
+    /// @brief class constructor
+    /// @param msg_factory This is a msg factory instance
+    /// @param route_planner This is a route planner instance
+    ServerMsgHandler(MsgFactory::MsgFactoryPtr msg_factory, route::RoutePlanner* route_planner) : 
+    m_msg_factory(msg_factory),
     m_route_planner(route_planner)
     {}
 
+    /// @brief This method will handle a Status Request Message received from the client
+    /// @param status_request This is the Status Request Message to handle
+    /// @return A Status Response Message
     MsgHeader::MsgPointer HandleStatusRequestMsg(MsgStatusRequest::MsgPointer status_request) {
         LOG4CXX_INFO(m_logger, "Received Status Request Msg. timestamp=" << status_request->DateString());
         LOG4CXX_INFO(m_logger, "Sending Status Response Msg.");
 
-        return m_msg_factory.Create(MSG_STATUS_RESPONSE_ID);
+        return m_msg_factory->Create(MSG_STATUS_RESPONSE_ID);
     }
 
+    /// @brief This method will handle a Loctions Request Message received from the client. It will handle pagnated requests, especially
+    /// if the number of locations is larger than what can be handled via the msg
+    /// @param locations_request This is the Loctions Request Message to handle
+    /// @return A Loctions Response Message
     MsgHeader::MsgPointer HandleLocationsRequestMsg(MsgLocationsRequest::MsgPointer locations_request) {
         LOG4CXX_INFO(m_logger, "Received Locations Request Msg. timestamp=" << locations_request->DateString());
 
-        auto response_msg = MsgHeader::GetDerivedType<MsgLocationsResponse>(m_msg_factory.Create(MSG_LOCATIONS_RESPONSE_ID));
+        auto response_msg = MsgHeader::GetDerivedType<MsgLocationsResponse>(m_msg_factory->Create(MSG_LOCATIONS_RESPONSE_ID));
 
         auto locations = m_route_planner->GetLocationNames();
         size_t start_i = locations_request->GetData()->start_location;
@@ -52,6 +65,10 @@ public:
         return nullptr;
     }
 
+    /// @brief This method will handle a Route Request Message received from the client, it will use the route planner to calculate the route
+    /// between a start and end location, sending the result back to the client
+    /// @param route_request This is the Route Request Message to handle
+    /// @return A Route Response Message
     MsgHeader::MsgPointer HandleRouteRequestMsg(MsgRouteRequest::MsgPointer route_request) {
         LOG4CXX_INFO(m_logger, "Received Route Request Msg. timestamp=" << route_request->DateString());
         size_t start_location = route_request->GetData()->start_location;
@@ -61,7 +78,7 @@ public:
         if (start_location < locations.size() && end_location < locations.size()) {
             size_t cost = m_route_planner->GetRouteCost(locations[start_location], locations[end_location]);
 
-            auto response_msg = MsgHeader::GetDerivedType<MsgRouteResponse>(m_msg_factory.Create(MSG_ROUTE_RESPONSE_ID));
+            auto response_msg = MsgHeader::GetDerivedType<MsgRouteResponse>(m_msg_factory->Create(MSG_ROUTE_RESPONSE_ID));
             response_msg->SetCost(cost);
 
             return response_msg;
@@ -72,8 +89,10 @@ public:
         return nullptr;
     }
 
+    /// @brief This is the main Message Handler called on reception of a message
+    /// @param msg The message to handle
+    /// @return The response message to send
     MsgHeader::MsgPointer MsgHandler(MsgHeader::MsgPointer msg) {
-        
         if (msg->Id() == MSG_STATUS_REQUEST_ID) {   
             return HandleStatusRequestMsg(MsgHeader::GetDerivedType<MsgStatusRequest>(msg));
         }
@@ -118,7 +137,7 @@ int main(int argc, char* argv[])
         std::shared_ptr<MsgFactory> msg_factory(new MsgFactory);
         comms::TcpServer server(port_num);
 
-        ServerMsgHandler msg_handler(&route_planner);        
+        ServerMsgHandler msg_handler(msg_factory, &route_planner);        
 
         server.Start(std::bind(&ServerMsgHandler::MsgHandler, &msg_handler, std::placeholders::_1), msg_factory);        
     }
